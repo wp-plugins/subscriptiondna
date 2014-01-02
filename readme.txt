@@ -123,6 +123,10 @@ payment and subscription method enhancements
 adjust layout of default member screens
 modify js function naming to better prevent colliding js
 
+= 1.0.5 =
+javascript files separated in own js files
+new options added on member home pages
+
 == Attention Developers ==
 
 You're out there. Innovating, sometimes by task, sometimes by passion. We crave your input.
