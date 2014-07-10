@@ -46,15 +46,14 @@ First, you can download it directly from the WordPress.org plugins directory, an
 
 1. Upload the whole Subscription DNA admin directory to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Enter your "TLD" and "API KEY" found in your Subscription DNA account Configurations screen
+3. Go to the Settings > SubscriptionDNA screen and enter your "TLD" and "API KEY" found in your Subscription DNA account Configurations screen, save and then click the generate DNA pages button.
 
 Or, you can install it by creating the directory from the Admin section of your WordPress blog by following these steps:
 
 1. Under the 'Plugins' menu in WordPress select 'Add New'
-2. Enter 'Subscription DNA' into the search box
-3. Choose the 'install' option on the right hand side of the listing
+2. Enter 'Subscription DNA' into the search box, choose the 'install' option on the right hand side of the listing
 4. Activate the plugin through the 'Plugins' menu in WordPress
-5. Enter your "TLD" and "API KEY" found in your Subscription DNA account Configurations screen
+5. Go to the Settings > SubscriptionDNA screen and enter your "TLD" and "API KEY" found in your Subscription DNA account Configurations screen, save and then click the generate DNA pages button.
 
 == Frequently Asked Questions ==
 = Is Subscription DNA&reg; PCI Compliant? =
