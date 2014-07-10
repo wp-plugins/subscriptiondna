@@ -95,9 +95,6 @@ if($_REQUEST["save_cc_info"])
 }
 else
 {
-	$wsdl =$GLOBALS['SubscriptionDNA']['WSDL_URL'];
-	$client = new nusoap_client($wsdl,true);
-	$session_id = $_SESSION['user_session_id'];
 	$login_name = $_SESSION['login_name'];
 	if($_REQUEST["del_id"])
 	{

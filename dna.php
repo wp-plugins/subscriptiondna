@@ -2,7 +2,7 @@
     /*
         Plugin Name: SubscriptionDNA
         Plugin URI: http://SubscriptionDNA.com/wordpress/
-        Description: This plugin provides basic integration to your account with SubscriptionDNA.com's Enterprise Subscription Billing and Members Management Platform.
+        Description: This plugin will provide simple integration to your account with SubscriptionDNA.com's Enterprise Subscription Billing and Members Management Platform.
         Version: 2.0
         Author: SubscriptionDNA.com
         Author URI: http://SubscriptionDNA.com/
@@ -25,7 +25,7 @@ error_reporting(0);
 $GLOBALS['SubscriptionDNA'] = Array ( ) ;
 
 remove_filter('the_content', 'wpautop',1 );
-
+include("dna_widgets.php");
 // Common Plugin Functions
 
 /**
@@ -143,11 +143,6 @@ function SubscriptionDNA_Initialize ( )
             die($msg);
         }        
         
-        if (function_exists('register_sidebar_widget') && function_exists('register_widget_control') ) 
-	{
-		register_sidebar_widget("SubscriptionDNA Login", 'SubscriptionDNA_widget_login');
-		register_widget_control("SubscriptionDNA Login", 'SubscriptionDNA_widget_login_control');
-	}
         if($_REQUEST["DNA_Services"]=="1")
         {
             $serviceArray = SubscriptionDNA_ProcessRequest("","list/services",true);
@@ -236,28 +231,7 @@ function SubscriptionDNA_Get_Settings()
 
 }
 
-/**
- * DNA Login Widget Code
- *
- */ 
-function SubscriptionDNA_widget_login($args)
-{
-	extract($args);
-	if($_SESSION["user_session_id"]!="")
-	return(true);
-	echo $before_widget;
-	include 'login.php';
-	echo $after_widget;	
-}
 
-/**
- * Control that shows DNA login widget into wp admin
- *
- */ 
-function SubscriptionDNA_widget_login_control()
-{
-	//echo("OK");
-}
 
 
 //DNA Front-End Functions
@@ -330,6 +304,7 @@ function SubscriptionDNA_Get_Page_Content($Content)
 			<?php
 			exit;
 		}
+
 	}
 	if(is_page() && $GLOBALS['post']->post_type=="page" && $dna_options["sub"]=="1")
 	{
@@ -1029,16 +1004,21 @@ function SubscriptionDNA_Options_Edit ( )
 		<div class="inside">
 		<table class="editform optiontable">
 		<tr>
-		<th scope="row"><div align="right">TLD:</div></th>
-		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[TLD]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['TLD']) ; ?>" style="width:200px;" />&nbsp;(ex: client1.xsubscribe.com - client1 is your tld)
+		<th scope="row"><div align="right">DNA Account TLD:</div></th>
+		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[TLD]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['TLD']) ; ?>" style="width:300px;" /><br>
+        (ex: demo.xsubscribe.com - "demo" is your tld)
 		</td>
 		</tr>
 		
 		<tr>
 		<th scope="row"><div align="right">API KEY:</div></th>
-		<td class="dna-small"><input  type="text" name="SubscriptionDNA_Settings[API_KEY]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['API_KEY']) ; ?>" style="width:300px;" />&nbsp;(ex: API KEY is found on Configurations page in DNA portal )
+		<td class="dna-small"><input  type="text" name="SubscriptionDNA_Settings[API_KEY]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['API_KEY']) ; ?>" style="width:300px;" /><br />
+        (ex: API KEY is found on Configurations page in DNA portal )
 		</td>
 		</tr>
+
+
+<!--
 		<?php
                 if(!is_array($GLOBALS['SubscriptionDNA']['Settings']['HTTPS']))
                     $GLOBALS['SubscriptionDNA']['Settings']['HTTPS']=array();
@@ -1054,33 +1034,38 @@ function SubscriptionDNA_Options_Edit ( )
 		<?php
 		}
 		?>
-		<tr>
-		<th scope="row"><div align="right">Show custom fields:</div></th>
-		<td class="dna-small"><input type="checkbox" name="SubscriptionDNA_Settings[Extra]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")echo("checked") ; ?> /> (registration and profile update)</td>
-		</tr>
-		
+
+
 		<tr>
 		<th scope="row"><div align="right">SSL URL:</div></th>
-		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[SSL]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['SSL']) ; ?>" style="width:420px;" />
+		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[SSL]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['SSL']) ; ?>" style="width:300px;" />
+		</tr>
+-->
+
+		<tr>
+		<th scope="row"><div align="right">Display Custom Fields:</div></th>
+		<td class="dna-small"><input type="checkbox" name="SubscriptionDNA_Settings[Extra]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")echo("checked") ; ?> /> (Includes custom fields on Registration and My Profile)</td>
 		</tr>
 		
 		<tr>
 		<th scope="row"><div align="right">Limit # of words on listing page:</div></th>
-		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[Limit]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['Limit']) ; ?>" style="width:50px;" /> (0=Unlimited)
+		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[Limit]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['Limit']) ; ?>" style="width:50px;" /> (0 = Unlimited)
 		</tr>
 		
 		<tr>
-		<th scope="row"><div align="right">Apply limit to "Member Only" Posts:</div></th>
-		<td class="dna-small"><input type="checkbox" name="SubscriptionDNA_Settings[LimitOnly]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['LimitOnly']=="1")echo("checked") ; ?> /> (applies limit to secure posts only)
+		<th scope="row"><div align="right">Limit Access to "Member Only" Posts:</div></th>
+		<td class="dna-small"><input type="checkbox" name="SubscriptionDNA_Settings[LimitOnly]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['LimitOnly']=="1")echo("checked") ; ?> /> (Applies limit to secure posts only)
 		</tr>
 		
 		<tr>
 		<th scope="row"><div align="right">Show "Member Only" Label:</div></th>
 		<td class="dna-small"><input type="checkbox" name="SubscriptionDNA_Settings[MemOnly]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['MemOnly']=="1")echo("checked") ; ?> />
 		</tr>
+        
 		<tr>
 		<th scope="row"><div align="right">Member Home Redirect:</div></th>
-		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[mem_url]"   style="width:420px;" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['mem_url']) ; ?>"  /> (for active subscribers)
+		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[mem_url]"   style="width:300px;" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['mem_url']) ; ?>"  /><br />
+        (Optionally redirect active subscription logins to this URL)
 		</tr>
                 
 		</table>
