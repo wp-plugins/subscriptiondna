@@ -112,22 +112,22 @@ adjust layout of default member screens
 modify js function naming to better prevent colliding js
 
 = 2.0 =
-soap api is replaced with latest REST api,<br>
+soap api is replaced with latest <b>REST</b> api,<br>
 password reset options added,<br>
 members can now upgrade subscription,<br>
 wordpress pages can now be protected for individual services.<br>
-shortcodes introduced for all subscriptionDNA pages.
-[subscriptiondna-login] SubscriptionDNA Login Page.
-[subscriptiondna-subscribe] SubscriptionDNA Registration page.
-[subscriptiondna-forgot-password] SubscriptionDNA forgot password page.
-[subscriptiondna-members] SubscriptionDNA members home page.
-[subscriptiondna-my-profile] SubscriptionDNA user profile management page.
-[subscriptiondna-change-password] SubscriptionDNA change password page.
-[subscriptiondna-manage-subscriptions] SubscriptionDNA manage subscriptions page.
-[subscriptiondna-payment-methods] SubscriptionDNA manage credit cards list.
-[subscriptiondna-transactions] SubscriptionDNA transactions listing page.
-[subscriptiondna-groups] SubscriptionDNA groups management page.
-[subscriptiondna-gift] SubscriptionDNA gift subscription page.
+shortcodes introduced for all subscriptionDNA pages.<br>
+[subscriptiondna-login] SubscriptionDNA Login Page.<br>
+[subscriptiondna-subscribe] SubscriptionDNA Registration page.<br>
+[subscriptiondna-forgot-password] SubscriptionDNA forgot password page.<br>
+[subscriptiondna-members] SubscriptionDNA members home page.<br>
+[subscriptiondna-my-profile] SubscriptionDNA user profile management page.<br>
+[subscriptiondna-change-password] SubscriptionDNA change password page.<br>
+[subscriptiondna-manage-subscriptions] SubscriptionDNA manage subscriptions page.<br>
+[subscriptiondna-payment-methods] SubscriptionDNA manage credit cards list.<br>
+[subscriptiondna-transactions] SubscriptionDNA transactions listing page.<br>
+[subscriptiondna-groups] SubscriptionDNA groups management page.<br>
+[subscriptiondna-gift] SubscriptionDNA gift subscription page.<br>
 
 == Upgrade Notice ==
 = 1.0.1 =
