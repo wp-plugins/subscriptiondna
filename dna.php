@@ -2,7 +2,7 @@
     /*
         Plugin Name: SubscriptionDNA
         Plugin URI: http://SubscriptionDNA.com/wordpress/
-        Description: This plugin will provide basic integration to your account with SubscriptionDNA.com's Enterprise Subscription Billing and Members Management Platform.
+        Description: Quickly integrate your website with your SubscriptionDNA Enterprise Subscription Billing and Members Management Platform account.
         Version: 2.0
         Author: SubscriptionDNA.com
         Author URI: http://SubscriptionDNA.com/
