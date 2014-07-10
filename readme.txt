@@ -17,6 +17,7 @@ For more information, including features, pricing and sandbox demonstrations, pl
 
 = Plugin Features Include: =
 
+
 = Member and Group Self Serve Screens: =
 * Free Registration or Paid Subscription Signup
 * Account Login
