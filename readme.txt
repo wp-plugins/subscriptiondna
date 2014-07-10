@@ -112,10 +112,10 @@ adjust layout of default member screens
 modify js function naming to better prevent colliding js
 
 = 2.0 =
-soap api is replaced with Latest REST api
-password reset options added
-members can now upgrade subscription
-wordpress pages can now be protected for individual services
+soap api is replaced with latest REST api<br>
+password reset options added<br>
+members can now upgrade subscription<br>
+wordpress pages can now be protected for individual services<br>
 shortcodes introduced for all subscriptionDNA pages
 [subscriptiondna-login] SubscriptionDNA Login Page
 [subscriptiondna-subscribe] SubscriptionDNA Registration page
