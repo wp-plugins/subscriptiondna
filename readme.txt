@@ -127,6 +127,25 @@ modify js function naming to better prevent colliding js
 javascript files separated in own js files
 new options added on member home pages
 
+= 2.0 =
+soap api is replaced with Latest REST api
+password reset options added
+members can now upgrade subscription
+wordpress pages can now be protected for individual services
+shortcodes introduced for all subscriptionDNA pages
+[subscriptiondna-login] SubscriptionDNA Login Page
+[subscriptiondna-subscribe] SubscriptionDNA Registration page
+[subscriptiondna-forgot-password] SubscriptionDNA forgot password page
+[subscriptiondna-members] SubscriptionDNA members home page
+[subscriptiondna-my-profile] SubscriptionDNA user profile management page
+[subscriptiondna-change-password] SubscriptionDNA change password page
+[subscriptiondna-manage-subscriptions] SubscriptionDNA manage subscriptions page
+[subscriptiondna-payment-methods] SubscriptionDNA manage credit cards list
+[subscriptiondna-transactions] SubscriptionDNA transactions listing page
+[subscriptiondna-groups] SubscriptionDNA groups management page
+[subscriptiondna-gift] SubscriptionDNA gift subscription page
+
+
 == Attention Developers ==
 
 You're out there. Innovating, sometimes by task, sometimes by passion. We crave your input.

@@ -1,12 +1,9 @@
 <?php
-require_once(dirname(__FILE__).'/lib/nusoap.php');
-$client = new nusoap_client($GLOBALS['SubscriptionDNA']['WSDL_URL'],true);
 $serviceArray=array();
-$serviceArray = $client->call("GetAllServices",SubscriptionDNA_wrapAsSoap(array($_SERVER['REMOTE_ADDR'])));
-$serviceArray = SubscriptionDNA_parseResponse($serviceArray);
-if($serviceArray["errcode"]=="-51")
+$serviceArray = SubscriptionDNA_ProcessRequest("","list/services",true);
+if($serviceArray["errCode"]=="-51")
 {
-	echo("Error getting services list: ".$serviceArray["errdesc"]."<br>");	
+	echo("Error getting services list: ".$serviceArray["errDesc"]."<br>");	
 	$serviceArray=array();
 }
 
@@ -71,7 +68,7 @@ if($posts) {
 					else
 						$status="yes";
 
-					$cat='<a href="options-general.php?page=subscriptiondna/SubscriptionDNA.php&manage_posts=1&post_cat_id='.$_REQUEST["post_cat_id"].'&post_id='.$Term->ID.'&status='.$status.'">'.$checked.'</a>';
+					$cat='<a href="options-general.php?page=subscriptiondna/dna.php&manage_posts=1&post_cat_id='.$_REQUEST["post_cat_id"].'&post_id='.$Term->ID.'&status='.$status.'">'.$checked.'</a>';
 
                     $Class = ( 'alternate' == $Class ) ? '' : 'alternate' ;
 					
@@ -99,7 +96,7 @@ if($posts) {
 					foreach($serviceArray as $v)
 					{
 						?>
-						<option label="<?=$v["service_name"]; ?>" value="<?=$v["sid"] ?>"  <?php if(in_array($v["sid"],$services))echo("selected"); ?>><?=$v["service_name"]; ?></option>
+						<option label="<?=$v["service_name"]; ?>" value="<?=$v["sId"] ?>"  <?php if(in_array($v["sId"],$services))echo("selected"); ?>><?=$v["service_name"]; ?></option>
 						<? 
 					}
 					?>

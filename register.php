@@ -1,95 +1,86 @@
 <?php
-require_once(dirname(__FILE__).'/lib/nusoap.php');
-$wsdl =$GLOBALS['SubscriptionDNA']['WSDL_URL'];
-	
-$client = new nusoap_client($wsdl,true);
-
-$result = $client->call("GetAllPackages",SubscriptionDNA_wrapAsSoap(array($_SERVER['REMOTE_ADDR'])));
-$packages = SubscriptionDNA_parseResponse($result);
-
-$customFields = $client->call("GetCustomFields",SubscriptionDNA_wrapAsSoap(array()));
-$customFields = SubscriptionDNA_parseResponse($customFields);
-
-
-$submit_page=false;
-	if((isset($_REQUEST["checkPromo"]) or isset($_REQUEST["x_submit"])) && !isset($_POST['response_type']))
-	{
-               $blocked_codes=array("blk1","blk2");  
-               if(!in_array($_POST["promo_code"],$blocked_codes))
-               {
-                    //list($service_id,$billing_routine)=split(";",$_REQUEST["packages"][0]);
-                    $result = $client->call("ValidatePromocode",SubscriptionDNA_wrapAsSoap(array($_POST["promo_code"],"")));
-                    $promocode = SubscriptionDNA_parseResponse($result);
-                    //print_r($promocode);
-                    if($promocode["errcode"]<0)
-                    {
-                            $msg=$promocode["errdesc"].'';
-                            $validCode="f";
-                    }
-                    else
-                    {
-                            if($promocode["discount_mod"]=="%")
-                                    $msg='You save '.$promocode["discount"].$promocode["discount_mod"].'';
-                            else
-                                    $msg='You save $'.$promocode["discount"].'';
-                            $validCode="t";
-                    }
-
-                    if($validCode=="t" || $_POST["promo_code"]=="")
-                    {		
-                            if(isset($_REQUEST["x_submit"]) && !isset($_POST['response_type']))
-                            {
-                                    $submit_page=true;
-                                    ?>
-                                    <style>
-                                    body{
-                                            display:none;
-                                    }
-                                    </style>
-                                    <?php
-                            }
-                            else
-                            {
-                                    if($_REQUEST["promo_code"]!="")
-                                    $message="<span style='color:#44911a;'>Discount Code Validated: ".$_REQUEST["promo_code"] ." - ".$msg."</span>";
-                            }
-                    }
-                    else if($_POST["promo_code"]!="")
-                    {
-                            $message="Sorry, you've entered an invalid discount code: ".$_REQUEST["promo_code"];
-                    }
-               }     
-               else
-               {
-                    $message=" Invalid discount code: ".$_REQUEST["promo_code"];
-               }
-	}
-
-
-
-$result=array();
-if($_REQUEST['check_available'])
+if(isset($_REQUEST["x_submit"]))
 {
-		$client = new nusoap_client($wsdl,true);		
-		$login_name = $_REQUEST['login_name'];
-		$result = $client->call("UsernameAvailability",SubscriptionDNA_wrapAsSoap(array($login_name)));	
-	$result = SubscriptionDNA_parseResponse($result);
-	if($result['errcode']!=4){
-		$msgu='<div class="lblErr">'.$result['errdesc'].'</div>';
-	}else{
-		$msgu='<div class="success">'.$result['errdesc'].'</div>';
-	}
-}else if($_REQUEST['check_email_available']){
-		$client = new nusoap_client($wsdl,true);		
-		$email = $_REQUEST['email'];
-		$result = $client->call("EmailAvailability", SubscriptionDNA_wrapAsSoap(array($email)));
-	$result = SubscriptionDNA_parseResponse($result);
-	if($result['errcode']!=5){
-		$msge='<div class="lblErr">'.$result['errdesc'].'</div>';
-	}else{
-		$msge='<div class="success">'.$result['errdesc'].'</div>';
-	}
-}?>
+    if(!isset($_REQUEST["cc_on_file"]))
+        $_REQUEST["card_id"]="";
+    $custom_fields=array();
+    foreach($_POST as $key => $val)
+    {
+        if(substr($key, 0, 3)  == "cf_")
+        {
+            if(is_array($val))
+            {
+                $val =implode(",", $val);
+            }
+
+            $custom_fields[substr($key,3)]= $val;
+        }
+    }
+    list($service_id,$billing_routine_id)=explode(";",$_POST["packages"][0]);
+    $data=array(
+        "login_name"=>$_REQUEST["login_name"],
+        "password"=>$_REQUEST["password"],
+        "first_name"=>$_REQUEST["first_name"],
+        "last_name"=>$_REQUEST["last_name"],
+        "email"=>$_REQUEST["email"],
+        "address1"=>$_REQUEST["address1"],
+        "address2"=>$_REQUEST["address2"],
+        "phone"=>$_REQUEST["phone"],
+        "city"=>$_REQUEST["city"],
+        "state"=>$_REQUEST["state"],
+        "zipcode"=>$_REQUEST["zipcode"],
+        "country"=>$_REQUEST["country"],
+        "subscribe_to_service"=>"1",
+        "service_id"=>$service_id,
+        "billing_routine_id"=>$billing_routine_id,
+        "paid_by_credit_card"=>1,
+        "cc_name"=>$_REQUEST["cc_name"],
+        "cc_type"=>$_REQUEST["cc_type"],
+        "cc_number"=>$_REQUEST["cc_number"],
+        "cc_exp_month"=>$_REQUEST["cc_exp_month"],
+        "cc_exp_year"=>$_REQUEST["cc_exp_year"],
+        "cc_cvv"=>$_REQUEST["cc_cvv"],
+        "custom_fields"=>$custom_fields,
+        "how_referred"=>$_REQUEST["how_referred"],
+        "promo_code"=>$_REQUEST["promo_code"],
+        "group_owner_id"=>"",
+        "user_description"=>$_REQUEST["user_description"],     
+        "auto_login_name"=>"",     
+        "auto_password"=>"",     
+        "is_groupowner"=>"",     
+        "max_subscribers"=>"",     
+        "group_service"=>"",     
+        "group_billing"=>"",     
+        "send_welcome_email"=>"",     
+        "setup_amount"=>"",     
+        "check_mo"=>"",     
+        "tax"=>"",     
+        "email_confirmurl"=>""     
+    );
+    
+    $result = SubscriptionDNA_ProcessRequest($data,"user/register",true);
+    if($result["errCode"]<0)
+    {
+        $_POST['response_type']="Failed";
+        $_POST['response']=$result["errDesc"];
+    }
+    else
+    {
+        ?>
+        <script>
+        location.href='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['login'])); ?>';
+        </script>
+        <?php
+        die();
+    }
+}
+
+$packages = SubscriptionDNA_ProcessRequest("","list/packages");
+$customFields=SubscriptionDNA_ProcessRequest("","list/custom_fields");
+
+
+
+?>
  
 <style TYPE="text/css"> 
 .lbl {color: #000000 }
@@ -109,8 +100,102 @@ if($_REQUEST['check_available'])
 #DNAFormFields input.err,select.err { border: 1px #7f9db9 solid; }
 #DNAFormFields h3 { font-size: 13pt; margin: 0px; }
 </style> 
- 
-<script type="text/javascript" src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/javascript.js"></script>
+<script type="text/javascript">
+<!--
+jQuery(document).ready(function () {
+    var validateUsername = jQuery('#login_name_lbl_error');
+    jQuery('#login_name').blur(function () {
+        var t = this; 
+        if (this.value != this.lastValue && this.value!="") {
+            if (this.timer) clearTimeout(this.timer);
+            
+            jQuery('#username_validated').val("");
+            jQuery('#x_submit').prop("disabled", true);
+            
+            validateUsername.removeClass('error').html('<img src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/images/loader.gif" height="16" width="16" />');
+            this.timer = setTimeout(function () {
+                jQuery.ajax({
+                    url: '<?php echo(get_option("siteurl")); ?>?dna_validate=login_name',
+                    data: 'login_name=' + t.value,
+                    dataType: 'html',
+                    type: 'GET',
+                    success: function (j) {
+                        
+                        validateUsername.html(j);
+                        if(j.indexOf("lblErr")>0) 
+                        {
+                            jQuery('#username_validated').val("");
+                        }
+                        else
+                        {
+                            jQuery('#username_validated').val("1");
+                        }
+                        jQuery('#x_submit').prop("disabled", false);
+                    }
+                });
+            }, 200);
+            this.lastValue = this.value;
+        }
+    });
+
+    var validateEmail = jQuery('#email_lbl_error');
+    jQuery('#email').blur(function () {
+        var t = this; 
+        if (this.value != this.lastValue && this.value!="") {
+            if (this.timer) clearTimeout(this.timer);
+            jQuery('#email_validated').val("");
+            jQuery('#x_submit').prop("disabled", true);
+            validateEmail.removeClass('error').html('<img src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/images/loader.gif" height="16" width="16" />');
+            this.timer = setTimeout(function () {
+                jQuery.ajax({
+                    url: '<?php echo(get_option("siteurl")); ?>?dna_validate=email' ,
+                    data: 'email='+ t.value,
+                    dataType: 'html',
+                    type: 'GET',
+                    success: function (j) {
+                        validateEmail.html(j);
+                        if(j.indexOf("lblErr")>0) 
+                        {
+                            jQuery('#email_validated').val("");
+                        }
+                        else
+                        {
+                            jQuery('#email_validated').val("1");
+                        }
+                        jQuery('#x_submit').prop("disabled", false);
+                    }
+                });
+            }, 200);
+            this.lastValue = this.value;
+        }
+    });
+
+    var validatePromo = jQuery('#promo_code_lbl_error');
+    jQuery('#promo_code').blur(function () {
+        var t = this; 
+        if (this.value != this.lastValue && this.value!="") {
+            if (this.timer) clearTimeout(this.timer);
+            validatePromo.removeClass('error').html('<img src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/images/loader.gif" height="16" width="16" />');
+            this.timer = setTimeout(function () {
+                jQuery.ajax({
+                    url: '<?php echo(get_option("siteurl")); ?>?dna_validate=promo_code',
+                    data: 'promo_code=' + t.value,
+                    dataType: 'html',
+                    type: 'GET',
+                    success: function (j) {
+                        validatePromo.html(j);
+                        hidePaymentInfo();
+                    }
+                });
+            }, 200);
+            this.lastValue = this.value;
+        }
+    });
+
+});
+//-->
+</script>  
+<script type="text/javascript" src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/dna.js"></script>
 
 <div align="center" id="DNAFormFields"> 
 <div style="color:#990000;">
@@ -119,17 +204,15 @@ if($_REQUEST['check_available'])
 ?>
 </div>
 
-<form method="post" name="customSubscribeForm" action="<?php if($submit_page){ ?>https://<?php echo($GLOBALS['SubscriptionDNA']['Settings']['TLD']) ; ?>.xsubscribe.com/widgetvalidate/remoteSubscriptionHandlerP<?php } ?>" > 
+<form method="post" name="customSubscribeForm" action="" > 
             
-    <input type='hidden' name='x_confirmurl' value='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']['Login'])); ?>'>
-    <input type='hidden' name='subscribe_to_service' value='1'>
-    <input type='hidden' name='cust_fields' value='1'>
-    <input type='hidden' name='service_id' value=''>
-    <input type='hidden' name='billing_routine_id' value='0'>
-    <input type='hidden' name='paid_by_credit_card' value='1'>
-    <input type='hidden' name='add_fields_req' value='1'>
-    <input type='hidden' name='group_owner_id' value=''>
+    <input type='hidden' name='x_confirmurl' value='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['login'])); ?>'>
+
+    <input type='hidden' name='email_validated' id="email_validated" value='<?php echo($_REQUEST["email_validated"]); ?>'>
+    <input type='hidden' name='username_validated' id="username_validated" value='<?php echo($_REQUEST["username_validated"]); ?>'>
  
+    
+    
 <span id="x_sid_01_lbl_error" class="lblErr"></span><br> 
  
 <p> 
@@ -143,12 +226,12 @@ if($_REQUEST['check_available'])
 				$count=0;
 				foreach($packages as $package)
 				{
-					if(in_array($package["service_id"].";".$package["billing_routine_id"],$_POST["packages"]))
-					$package["defaultval"]="Yes";
+					if(in_array($package->service_id.";".$package->billing_routine_id,$_POST["packages"]))
+					$package->defaultval="Yes";
 					?>
 					<div id="innerDiv">
-					<strong><input style="width: 15px;" type="radio" name="packages[]" id="packages_<?php echo($count); ?>"  value="<?php echo($package["service_id"]); ?>;<?php echo($package["billing_routine_id"]); ?>" <?php if($package["defaultval"]=="Yes") echo("checked");  ?>  ><?php echo($package["package_name"]);  ?></strong>
-						<div style="margin-left:20px;"><?php echo($package["package_description"]); ?></div><br>
+					<strong><input style="width: 15px;" type="radio" name="packages[]" id="packages_<?php echo($count); ?>"  value="<?php echo($package->service_id); ?>;<?php echo($package->billing_routine_id); ?>" <?php if($package->defaultval=="Yes") echo("checked");  ?>  ><?php echo($package->package_name);  ?></strong>
+						<div style="margin-left:20px;"><?php echo($package->package_description); ?></div><br>
 					</div>
 					<?php 
 					$count++;
@@ -174,7 +257,7 @@ function validateSubscription()
 </script>
 <tr> 
 <td align="left"><span id="promo_code_lbl" class="lbl">Enter Discount Code</span></td> 
-<td><input TYPE="TEXT" NAME="promo_code" value="<?php echo($_REQUEST["promo_code"]); ?>" id="promo_code" style="width:120px; padding-left: 4px;" size="30" class="noErr" MAXLENGTH="50"> <input style="width:79px; height:22px; color: #000000; background-color: #ffffff; border: 1px solid black;" class="style17" type="submit" name="checkPromo" value="Validate" /></td> 
+<td><input TYPE="TEXT" NAME="promo_code" value="<?php echo($_REQUEST["promo_code"]); ?>" id="promo_code" style="width:120px; padding-left: 4px;" size="30" class="noErr" MAXLENGTH="50"> </td> 
 <td width="180">
 <br>    
 <span id="error2" class="lblErr"></span>    
@@ -188,7 +271,7 @@ function validateSubscription()
  
 <tr> 
 <td align="left"><span id="first_name_lbl" class="lbl">First Name</span></td> 
-<td><input TYPE="TEXT" NAME="first_name" value="<?php echo($_REQUEST["first_name"]); ?>" id="first_name" size="30" class="noErr" MAXLENGTH="50" onfocus="assignAdvisor();"></td> 
+<td><input TYPE="TEXT" NAME="first_name" value="<?php echo($_REQUEST["first_name"]); ?>" id="first_name" size="30" class="noErr" MAXLENGTH="50" ></td> 
 <td width="180"><span id="first_name_lbl_error" class="lblErr"></span></td> 
 </tr> 
  
@@ -203,7 +286,7 @@ function validateSubscription()
 <tr> 
 <td valign="top" align="left"><span id="login_name_lbl" class="lbl">Login Username</span></td> 
 <td><input TYPE="TEXT" NAME="login_name" value="<?php echo($_REQUEST["login_name"]); ?>"  id="login_name" size="30" class="noErr" MAXLENGTH="100" >
-<input type="submit" name="check_available"  id="check_available" value="Check Availability" onclick="this.form.action='';" />
+
 </td> 
 <td valign="top"><span id="login_name_lbl_error" class="lblErr"><?php echo($msgu); ?></span></td> 
 </tr> 
@@ -224,7 +307,7 @@ function validateSubscription()
 <tr> 
 <td valign="top" align="left"><span id="email_lbl" class="lbl">Account Email</span></td> 
 <td><input TYPE="TEXT" NAME="email" value="<?php echo($_REQUEST["email"]); ?>" id="email" size="30" class="noErr" MAXLENGTH="100">
-<input type="submit"  name="check_email_available"  id="check_email_available" value="Check Availability" onclick="this.form.action='';" />
+
 </td> 
 <td valign="top"><span id="email_lbl_error" class="lblErr"><?php echo($msge); ?></span></td> 
 </tr> 
@@ -289,14 +372,13 @@ function validateSubscription()
 <span id="cc_exp_year_lbl" class="lbl">Year</span>&nbsp
 <select NAME="cc_exp_year" id="cc_exp_year"  class="noErr" style="width: 50px;"> 
 <option></option> 
-<option VALUE="13">2013</option> 
-<option VALUE="14">2014</option> 
-<option VALUE="15">2015</option> 
-<option VALUE="16">2016</option> 
-<option VALUE="17">2017</option> 
-<option VALUE="18">2018</option> 
-<option VALUE="19">2019</option> 
-<option VALUE="20">2020</option> 
+<?php
+$year=date("Y");
+for($i=$year;$i<=$year+5;$i++)
+{
+    ?><option value='<?php echo(substr($i,2)); ?>'><?php echo($i); ?></option><?php
+}
+?>
 </select></td> 
 </tr> 
 </table> 
@@ -429,36 +511,31 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 //	Adding custom fields.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 					
-					$str =$customFields["custom_fields"];
-					$str1 = explode("~", $str);
-					$cf = array();
-					for($i= 0; $i < count($str1); $i++)
+					foreach($customFields as $customField)
 					{
-						$str2 = explode("&", $str1[$i]);
-
-						$caption = explode("=", $str2[0]);
-						$type = explode("=", $str2[1]);
-						$name = explode("=", $str2[2]);
-						$default_value = explode("=", $str2[3]);
-						$value[1] = $_POST[$name[1]];
-						if($name[1])
+						$caption = $customField->caption;
+						$type = $customField->type;
+						$name = $customField->name;
+						$default_value = $customField->default_value;
+						$value = $_POST[$name];
+						if($name)
 						{
 							echo "<tr>
-								<td><input type='hidden' name='hd_custom_fields[]' value='".substr($name[1],3)."'/>
-								".$caption[1].":</td>";
-								if($type[1] == 'text')
+								<td><input type='hidden' name='hd_custom_fields[]' value='".substr($name,3)."'/>
+								".$caption.":</td>";
+								if($type == 'text')
 								{
-									$text_val = (empty($value[1])) ? $default_value[1] : $value[1];
-									echo '<td><input type="text" name="'. $name[1] .'" id="'. $name[1] .'" value="'. htmlentities( $text_val ) .'"  size="30"></td>';
+									$text_val = (empty($value)) ? $default_value : $value;
+									echo '<td><input type="text" name="'. $name .'" id="'. $name .'" value="'. htmlentities( $text_val ) .'"  size="30"></td>';
 									//echo $out;
 								}
 								
-								if($type[1] == 'checkbox')
+								if($type == 'checkbox')
 								{									
-									if($default_value[1])
+									if($default_value)
 									{
-										$checkbox_list = explode("\n", $default_value[1]);
-										$selected_value_list =$value[1];
+										$checkbox_list = explode("\n", $default_value);
+										$selected_value_list =$value;
 										echo("<td>");
 										
 										for($j = 0; $j <count($checkbox_list); $j++)
@@ -473,56 +550,56 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 												}	
 											}	
 												
-											echo "<input style='width: 15px' name='".$name[1]."[]"."' type='".$type[1]."' id='".$name[1]."' ".$selected_val." type='".$type[1]."' value='".$checkbox_list[$j]."' /> ".$checkbox_list[$j]." ";	
+											echo "<input style='width: 15px' name='".$name."[]"."' type='".$type."' id='".$name."' ".$selected_val." type='".$type."' value='".$checkbox_list[$j]."' /> ".$checkbox_list[$j]." ";	
 										}
 										echo("</td>");
 									}
 									else
 									{
-										echo "<td><input style='width: 15px' name='".$name[1]."[]"."' id='".$name[1]."' type='".$type[1]."' value='".$value[1]."' /></td>";	
+										echo "<td><input style='width: 15px' name='".$name."[]"."' id='".$name."' type='".$type."' value='".$value."' /></td>";	
 									}
 									
 								}
 								
-								if($type[1] == 'radio')
+								if($type == 'radio')
 								{
-									if($default_value[1])
+									if($default_value)
 									{
-										$radio_list = explode("\n", $default_value[1]);
+										$radio_list = explode("\n", $default_value);
 										echo("<td>");
 										for($j = 0; $j <count($radio_list); $j++)
 										{											
-											if($value[1] == $radio_list[$j]) 
+											if($value == $radio_list[$j]) 
 												$sel = "checked";
 											else
 												$sel = '';	
 												
-											echo "<input style='width: 15px' name='".$name[1]."' type='".$type[1]."' id='".$name[1]."' ".$sel." type='".$type[1]."' value='".$radio_list[$j]."' /> ".$radio_list[$j]."  ";	
+											echo "<input style='width: 15px' name='".$name."' type='".$type."' id='".$name."' ".$sel." type='".$type."' value='".$radio_list[$j]."' /> ".$radio_list[$j]."  ";	
 										}
 										echo("</td>");
 									}
 									else
 									{
-										echo "<td><input style='width: 15px' name='".$name[1]."' id='".$name[1]."' type='".$type[1]."' value='".$value[1]."' /></td>";	
+										echo "<td><input style='width: 15px' name='".$name."' id='".$name."' type='".$type."' value='".$value."' /></td>";	
 									}
 									
 								}
 								
-								if($type[1] == 'textarea')
+								if($type == 'textarea')
 								{
-									echo '<td><textarea name="'.$name[1].'" id="'.$name[1].'" >'.htmlentities($value[1]).'</textarea></td>';
+									echo '<td><textarea name="'.$name.'" id="'.$name.'" >'.htmlentities($value).'</textarea></td>';
 								}
 								
-								if($type[1] == 'select')
+								if($type == 'select')
 								{											
-									if($default_value[1])
+									if($default_value)
 									{
-										$value_list = explode("\n", $default_value[1]);
+										$value_list = explode("\n", $default_value);
 										
-										echo "<td><select name='".$name[1]."' id='".$name[1]."'>";										
+										echo "<td><select name='".$name."' id='".$name."'>";										
 										for($j = 0; $j <count($value_list); $j++)
 										{											
-											if($value_list[$j]==$value[1])
+											if($value_list[$j]==$value)
 												echo "<option selected value='".$value_list[$j]."'>".$value_list[$j]."</option>";
 											else	
 												echo "<option value='".$value_list[$j]."'>".$value_list[$j]."</option>";
@@ -531,14 +608,14 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 									}									
 								}
 
-								if($type[1] == 'multi_select')
+								if($type == 'multi_select')
 								{		
-									if($default_value[1])
+									if($default_value)
 									{
-										$multiselect_list = explode("\n", $default_value[1]);
-										$selected_value_list = explode(",", $value[1]);
+										$multiselect_list = explode("\n", $default_value);
+										$selected_value_list = explode(",", $value);
 
-										echo "<td><select name='".$name[1]."[]' multiple id='".$name[1]."'>";
+										echo "<td><select name='".$name."[]' multiple id='".$name."'>";
 										
 										for($j = 0; $j <count($multiselect_list); $j++)
 										{
@@ -624,23 +701,8 @@ if($_POST)
 		document.getElementById("country").value="<?php echo($_REQUEST["country"]); ?>";
 		document.getElementById("stateList").value="<?php echo($_REQUEST["stateList"]); ?>";
 	</script>
-	<?php
-	if($submit_page)
-	{
-		?>
-		<script>
-		document.customSubscribeForm.submit();
-		</script>
-		<?php
-	}
-        if($validCode!="")
-        {
-            ?>
-            <script>
-             window.scrollTo(0,500);
-            </script>
-            <?php
-        }
+	
+        <?php
 }
 ?> 
  

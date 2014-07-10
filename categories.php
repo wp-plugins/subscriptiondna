@@ -1,5 +1,4 @@
 <?php
-	require_once(dirname(__FILE__).'/lib/nusoap.php');
 	$categories = get_categories("hide_empty=0");
 	if($_POST["cmdServices"])
 	{
@@ -8,13 +7,10 @@
 			update_option('SubscriptionDNA_-_Settings_-_Cat'.$Term->cat_ID, $_POST["service_id_".$Term->cat_ID]) ;
 		}
 	}
-	$client = new nusoap_client($GLOBALS['SubscriptionDNA']['WSDL_URL'],true);
-	$serviceArray=array();
-	$serviceArray = $client->call("GetAllServices",SubscriptionDNA_wrapAsSoap(array($_SERVER['REMOTE_ADDR'])));
-	$serviceArray = SubscriptionDNA_parseResponse($serviceArray);
-	if($serviceArray["errcode"]=="-51")
+	$serviceArray = SubscriptionDNA_ProcessRequest("","list/services",true);
+	if($serviceArray["errCode"]=="-51")
 	{
-		echo("Error getting services list: ".$serviceArray["errdesc"]."<br>");	
+		echo("Error getting services list: ".$serviceArray["errDesc"]."<br>");	
 		$serviceArray=array();
 	}
 	$defaults = array(
@@ -66,7 +62,7 @@ if($categories) {
                 foreach($categories as $key=>$Term) {
 					$cats=get_option("SubscriptionDNA_cats");
 					$checked="Public";
-					$posts='<a href="options-general.php?page=subscriptiondna/SubscriptionDNA.php&manage_posts=1&post_cat_id='.$Term->cat_ID.'">Posts Access</a>';
+					$posts='<a href="options-general.php?page=subscriptiondna/dna.php&manage_posts=1&post_cat_id='.$Term->cat_ID.'">Posts Access</a>';
 					if(is_array($cats))
 					{
 						if(in_array($Term->cat_ID,$cats))
@@ -75,7 +71,7 @@ if($categories) {
 							$posts="Member Only";
 						}	
 					}
-					$cat='<a href="options-general.php?page=subscriptiondna/SubscriptionDNA.php&manage_cats=1&cat_id='.$Term->cat_ID.'">'.$checked.'</a>';
+					$cat='<a href="options-general.php?page=subscriptiondna/dna.php&manage_cats=1&cat_id='.$Term->cat_ID.'">'.$checked.'</a>';
 
                     $Class = ( 'alternate' == $Class ) ? '' : 'alternate' ;
 					
@@ -126,7 +122,7 @@ if($categories) {
 					foreach($serviceArray as $v)
 					{
 						?>
-						<option label="<?=$v["service_name"]; ?>" value="<?=$v["sid"] ?>"  <?php if(in_array($v["sid"],$services))echo("selected"); ?>><?=$v["service_name"]; ?></option>
+						<option label="<?=$v["service_name"]; ?>" value="<?=$v["sId"] ?>"  <?php if(in_array($v["sId"],$services))echo("selected"); ?>><?=$v["service_name"]; ?></option>
 						<? 
 					}
 					?>
