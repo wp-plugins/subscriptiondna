@@ -15,8 +15,7 @@ DNA quickly integrates with your site to allow subscription paywall signup, and 
 As a benefit to Subscription DNA&reg; clients who use Wordpress, this free Wordpress plugin will help speed up integration and quickly ties in the basic subscriber functionality needed to run your membership site.
 For more information, including features, pricing and sandbox demonstrations, please contact us: http://www.SubscriptionDNA.com/contact/
 
-= Plugin Features Include: =
-
+Plugin Features Include:
 
 = Member and Group Self Serve Screens: =
 * Free Registration or Paid Subscription Signup
@@ -104,19 +103,6 @@ With our small business approach, we are not looking for huge numbers of clients
 For screenshots, please signup for a sandbox demonstration at http://www.SubscriptionDNA.com/contact/
 
 == Changelog ==
-= 1.0.1 =
-We've simplified the plugin by auto-creating the various member pages.
-We've updated and enhanced the post and category access rules to validate for multiple services.
-We've adjusted some conditional statements to work better for php4 or php5.
-
-= 1.0.2 =
-minor adjustment required to profile screen
-
-= 1.0.3 =
-payment and subscription method enhancements
-adjust layout of default member screens
-modify js function naming to better prevent colliding js
-
 = 2.0 =
 <b>REST</b> api is now available in addition to original SOAP api.<br>
 password recovery reset option added.<br>
@@ -136,22 +122,7 @@ shortcodes introduced for all subscriptionDNA pages.<br>
 [subscriptiondna-gift] SubscriptionDNA gift subscription page.<br>
 
 == Upgrade Notice ==
-= 1.0.1 =
-There are currently no upgrades.
-
-= 1.0.2 =
-minor adjustment required to profile screen
-
-= 1.0.3 =
-payment and subscription method enhancements
-adjust layout of default member screens
-modify js function naming to better prevent colliding js
-
-= 1.0.5 =
-javascript files separated in own js files
-new options added on member home pages
-
-
+= Currently no upgrades added for version 2.0 =
 
 
 == Attention Developers ==

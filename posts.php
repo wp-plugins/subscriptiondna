@@ -26,21 +26,23 @@ if($_POST["cmdServices"])
 }
 
 ?>
-<div id="icon-edit" class="icon32"><br /></div>
-<h3>Manage posts access level</h3>
+<!--<div id="icon-edit" class="icon32"><br /></div>-->
+
+<h3>Manage Member Access to Secure Posts and Post Categories</h3>
+Your members must have a valid active subscription to one of the assigned services to access that post or category of posts. It is also possible to modify this to require active subscription to all the assigned services. Click the link to quickly switch from Member Only to Public access.
+
+<p>
 <form  id="SubscriptionDNA_list_form" name="SubscriptionDNA_list_form" method="post" innerAction=""> 
-<div align="right">
-<input type="submit" value="Save Services" name="cmdServices" id="cmdServices" class="button-secondary action" />
-</div>
     <table class="widefat post fixed" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th class="manage-column" id="cat_desc" scope="col" >Title</th>
+                <th class="manage-column" id="cat_desc" scope="col" >Post Title</th>
                 <th class="manage-column" id="cat_desc" scope="col" >Posts Access Level</th>
-                <th class="manage-column" id="cat_desc" scope="col" >Services</th>
+                <th class="manage-column" id="cat_desc" scope="col" >Subscribed Services</th>
             </tr>
         </thead>
 
+        <!--
         <tfoot>
 
             <tr>
@@ -50,6 +52,7 @@ if($_POST["cmdServices"])
             </tr>
 
         </tfoot>
+        -->
 
         <tbody>
 
@@ -119,10 +122,14 @@ if($posts) {
 
         </tbody>
     </table>
+<br />
+<input type="submit" value="Save Service Access Settings" name="cmdServices" id="cmdServices" class="button-secondary action" />
+<input type="button" value="Back" onclick="location.href='options-general.php?page=subscriptiondna/dna.php&manage_cats=1';" name="cmdServices" id="cmdServices" class="button-secondary action" />
 </form>
+
 <?php
 if (count( $posts )<1 ) 
 {
-	echo '<p>There are no Categories in the database.</p>' ;
+	echo '<p>There are no categories in the database.</p>' ;
 }
 ?> 

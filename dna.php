@@ -999,24 +999,19 @@ function SubscriptionDNA_Options_Edit ( )
 		<legend></legend>
 		<div id="poststuff" class="metabox-holder has-right-sidebar">
 		<div id="tagsdiv-post_tag" class="postbox">
-		<h3 class='hndle'><span>SubscriptionDNA Basic Plugin Settings</span></h3>
-                <link rel='stylesheet' href='styles.css' type='text/css' media='all' />
-		<div class="inside">
-		<table class="editform optiontable">
-		<tr>
-		<th scope="row"><div align="right">DNA Account TLD:</div></th>
-		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[TLD]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['TLD']) ; ?>" style="width:300px;" /><br>
-        (ex: demo.xsubscribe.com - "demo" is your tld)
-		</td>
-		</tr>
-		
-		<tr>
-		<th scope="row"><div align="right">API KEY:</div></th>
-		<td class="dna-small"><input  type="text" name="SubscriptionDNA_Settings[API_KEY]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['API_KEY']) ; ?>" style="width:300px;" /><br />
-        (ex: API KEY is found on Configurations page in DNA portal )
-		</td>
-		</tr>
+		<h3 class='hndle'><span>Subscription DNA Basic Plugin Settings</span></h3>
 
+<div style="padding: 25px;">
+
+<b>DNA Account TLD:</b><br />
+<input type="text" name="SubscriptionDNA_Settings[TLD]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['TLD']) ; ?>" style="width:300px;" /><br />
+(ex: If your account URL is https://demo.xsubscribe.com, then "demo" is your TLD)
+
+
+<p>
+<b>API KEY:</b><br />
+<input  type="text" name="SubscriptionDNA_Settings[API_KEY]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['API_KEY']) ; ?>" style="width:300px;" /><br />
+(ex: API KEY is found on Configurations page in DNA portal )
 
 <!--
 		<?php
@@ -1042,45 +1037,47 @@ function SubscriptionDNA_Options_Edit ( )
 		</tr>
 -->
 
-		<tr>
-		<th scope="row"><div align="right">Display Custom Fields:</div></th>
-		<td class="dna-small"><input type="checkbox" name="SubscriptionDNA_Settings[Extra]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")echo("checked") ; ?> /> (Includes custom fields on Registration and My Profile)</td>
-		</tr>
-		
-		<tr>
-		<th scope="row"><div align="right">Limit # of words on listing page:</div></th>
-		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[Limit]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['Limit']) ; ?>" style="width:50px;" /> (0 = Unlimited)
-		</tr>
-		
-		<tr>
-		<th scope="row"><div align="right">Limit Access to "Member Only" Posts:</div></th>
-		<td class="dna-small"><input type="checkbox" name="SubscriptionDNA_Settings[LimitOnly]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['LimitOnly']=="1")echo("checked") ; ?> /> (Applies limit to secure posts only)
-		</tr>
-		
-		<tr>
-		<th scope="row"><div align="right">Show "Member Only" Label:</div></th>
-		<td class="dna-small"><input type="checkbox" name="SubscriptionDNA_Settings[MemOnly]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['MemOnly']=="1")echo("checked") ; ?> />
-		</tr>
-        
-		<tr>
-		<th scope="row"><div align="right">Member Home Redirect:</div></th>
-		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[mem_url]"   style="width:300px;" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['mem_url']) ; ?>"  /><br />
-        (Optionally redirect active subscription logins to this URL)
-		</tr>
-                
-		</table>
-		</div>
+<p>
+<hr />
+
+<p>
+<input type="checkbox" name="SubscriptionDNA_Settings[Extra]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")echo("checked") ; ?> /> <b>Display Custom Fields?</b><br>
+(Includes Custom Fields on Registration Signup and My Profile)
+
+<p>
+<b>Member Home Redirect:</b><br />
+<input type="text" name="SubscriptionDNA_Settings[mem_url]"   style="width:300px;" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['mem_url']) ; ?>"  /><br />
+(Optionally redirect active subscription logins to this URL)
+
+</div>
+
+		<h3 class='hndle'><span>Display Limits on Secure Posts</span></h3>
+
+<div style="padding: 25px;">
+
+<input type="checkbox" name="SubscriptionDNA_Settings[LimitOnly]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['LimitOnly']=="1")echo("checked") ; ?> /> <b>Limit Access to "Member Only" Posts?</b><br />
+(Applies limit to secure posts only)
+
+<p>
+<input type="text" name="SubscriptionDNA_Settings[Limit]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['Limit']) ; ?>" style="width:40px;" /> <b>Limit length of secure post summary on listing page?</b><br />
+(Enter number of words before truncating the post.  0 = Unlimited)
+
+<p>
+<input type="checkbox" name="SubscriptionDNA_Settings[MemOnly]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['MemOnly']=="1")echo("checked") ; ?> /> <b>Display "Member Only" Label?</b>
+
+
+</div>
+
 		</div>
 		</div>                
 		</fieldset>
-		<center> <p class="submit">
+
+		<p class="submit">
 		<input type="hidden" name="butSwitchValue" id="butSwitchValue" value="text"            />
 		<input type="hidden" name="action" value="update"                                 />
-		<input type="submit" name="submit" value="<?php echo __ ( 'Update &raquo;' ) ; ?>"/>
-		<input type="submit" name="btnCreatePages" value="<?php echo __ ( 'Create Default Pages &raquo;' ) ; ?>"/>
-		
-		  
-		</p></center>
+		<input type="submit" name="submit" value="<?php echo __ ( 'Update Settings &raquo;' ) ; ?>"/>
+		<input type="submit" name="btnCreatePages" value="<?php echo __ ( 'Generate Default DNA Member Pages &raquo;' ) ; ?>"/>
+        </p>
 		</form>
 	<?php
 	}

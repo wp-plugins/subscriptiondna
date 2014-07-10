@@ -22,24 +22,28 @@
 		'suppress_filters' => true
 	);
 ?>
-<div id="icon-edit" class="icon32"><br /></div>
-<h3>Manage categories access level</h3>
+<!--<div id="icon-edit" class="icon32"></div>-->
+<h3>Manage Member Access to Secure Posts and Post Categories</h3>
+Your members must have a valid active subscription to one of the assigned services to access that post or category of posts. It is also possible to modify this to require active subscription to all the assigned services. Click the link to quickly switch from Member Only to Public access.
+
+<p>
 <form  id="SubscriptionDNA_list_form" name="SubscriptionDNA_list_form" method="post" innerAction=""> 
-<div align="right">
-<input type="submit" value="Save Services" name="cmdServices" id="cmdServices" class="button-secondary action" />
-</div>
+
     <table class="widefat post" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th class="manage-column" id="cat_desc" scope="col" >Name</th>
+                <th class="manage-column" id="cat_desc" scope="col" >Category</th>
+                <!--
                 <th class="manage-column" id="cat_desc" scope="col" >Description</th>
                 <th class="manage-column" id="cat_desc" scope="col" >Slug</th>
+                -->
                 <th class="manage-column" id="cat_desc" scope="col" >Category Access</th>
-                <th class="manage-column" id="cat_desc" scope="col" >Individual Posts</th>
-                <th class="manage-column" id="cat_desc"  scope="col" >Services</th>
+                <th class="manage-column" id="cat_desc" scope="col" >Post Access</th>
+                <th class="manage-column" id="cat_desc" scope="col" >Subscribed Services</th>
             </tr>
         </thead>
 
+<!--
         <tfoot>
 
             <tr>
@@ -52,7 +56,7 @@
             </tr>
 
         </tfoot>
-
+-->
         <tbody>
 
 <?php 
@@ -84,12 +88,14 @@ if($categories) {
                 <td>
         <?php echo $Term->name ; ?>
                 </td>
+               <!--
                 <td class="manage-column">
 				<?php echo $Term->category_description ; ?>                             
                 </td>
                 <td class="manage-column">
 	         <?php echo $Term->slug ; ?>
                 </td>
+                -->
                 <td class="manage-column">
 		        <?php echo $cat ; ?>
                 </td>
@@ -144,10 +150,13 @@ if($categories) {
 
         </tbody>
     </table>
+    <br />
+    <input type="submit" value="Save Service Access Settings" name="cmdServices" id="cmdServices" class="button-secondary action" />
+
 </form>
 <?php
 if (count( $categories )<1 ) 
 {
-	echo '<p>There are no Categories in the database.</p>' ;
+	echo '<p>There are no categories in the database.</p>' ;
 }
 ?> 
