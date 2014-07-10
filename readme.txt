@@ -2,58 +2,63 @@
 Contributors: The development team at Subscription DNA&reg;
 Website: http://www.SubscriptionDNA.com/
 Plugin URL: http://www.SubscriptionDNA.com/wordpress/
-Tags: enterprise, invoice, registration, subscribe, ordering, protect, subscription, member, membership, billing, payments, authentication, pay per view, premium content, credit card, login
+Tags: saas, invoice, enroll, paywall, registration, subscribe, ordering, signup, protect, subscription, member, membership, billing, payments, authentication, pay per view, premium content, credit card, login
 Requires at least: 2.8
 Tested up to: 3.9.1
 Stable tag: trunk
 
 == Description ==
 Subscription DNA&reg; is an enterprise subscription billing and membership management platform.
-A paid account with Subscription DNA&reg; allows the platform to enable the free Wordpress plugin.
-This wordpress plugin quickly ties in the basic subscriber functionality needed to run your membership site.
-For more information, including pricing and sandbox demonstrations, please contact us: http://www.SubscriptionDNA.com/contact/
+With DNA, you can easily manage your recurring revenue business with billing automation, robust reporting, communications tools, and much more.
+DNA quickly integrates with your site to allow subscription paywall signup, and protect premium content.
 
-Plugin Features Include:
+As a benefit to Subscription DNA&reg; clients who use Wordpress, this free Wordpress plugin will help speed up integration and quickly ties in the basic subscriber functionality needed to run your membership site.
+For more information, including features, pricing and sandbox demonstrations, please contact us: http://www.SubscriptionDNA.com/contact/
 
-= User: =
-* Paid Subscription and Membership Registration
+= Plugin Features Include: =
+
+= Member and Group Self Serve Screens: =
+* Free Registration or Paid Subscription Signup
 * Account Login
 * Forgot My Password
-* Update My Profile
-* Change My Password
-* Manage My Subscriptions
-* Manage My Payment Methods
-* View My Transactions
+* My Profile
+* My Password
+* My Subscriptions
+* My Payment Methods
+* My Transactions
+* Manage Group Members
 
 = Admin: =
-* Setup default member pages
-* Exclude pages from navigation
+* Creates basic member pages
+* Create a member menu or use an optional widget based menu
+* Protect any Page / Post / Post Category access from unauthorized member access
 * Limit secure post summary length
-* Uncheck boxes you prefer to suppress in the member's navigation
-* Check boxes that you need to run through your SSL certificate (https by default assumes ssl certificate of the same domain exists)
-* Protect any Page / Post / Post Category an authenticate against assigned subscription services
 
 = Customize: =
-* Layout or API connection customizations can be made to the code as needed.
+* Layout aesthetic or API connection customizations can be made to the code as needed
+* DNA is available as needed to help enhance both the UI and functional aspects of your site or administrative portal
 
 == Installation ==
 
 There a couple of ways to install Subscription DNA plugin for WordPress.
 
-First up, you can download it directly from the WordPress.org plugins directory, and install it by following these steps:
+First, you can download it directly from the WordPress.org plugins directory, and install it by following these steps:
 
 1. Upload the whole Subscription DNA admin directory to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Enter your "TLD" and "API KEY" found in your Subscription DNA account Configurations screen
 
 Or, you can install it by creating the directory from the Admin section of your WordPress blog by following these steps:
 
 1. Under the 'Plugins' menu in WordPress select 'Add New'
 2. Enter 'Subscription DNA' into the search box
 3. Choose the 'install' option on the right hand side of the listing
+4. Activate the plugin through the 'Plugins' menu in WordPress
+5. Enter your "TLD" and "API KEY" found in your Subscription DNA account Configurations screen
 
 == Frequently Asked Questions ==
-= Does Subscription DNA&reg; share subscriber data? =
-Seriously? Your data is secured. Each Subscription DNA client owns their own account data. The subscriber's sensitive information is encrypted and secure, while the portal is protected through SSL by password and optional CAPTCHA security code. Authenticated clients can export and download their member and reporting data at any time. Subscription DNA&reg; will NEVER intentionally share or misuse client data. 
+= Is Subscription DNA&reg; PCI Compliant? =
+Yes. We maintain quarterly PCI Compliance scans and extended server hardening.  Each Subscription DNA client owns their own account data. Your subscriber's sensitive information is encrypted and secure.  The administrative portal is protected through SSL by encrypted password and optional CAPTCHA security code. Authenticated clients can export and download their member and reporting data at any time. Subscription DNA&reg; will NEVER intentionally share or misuse client data. 
 
 = Can Subscription DNA&reg; allow subscribers to update their profile? =
 Yes. We include a ready-to-go subscriber portal where users can manage their profile, view transaction history, update their payment information, manage their subscriptions, etc. Alternatively, you can completely brand/customize a member portal in your template to transparently work with your site using advanced web services integration. 
@@ -62,7 +67,7 @@ Yes. We include a ready-to-go subscriber portal where users can manage their pro
 Currently, our intelligent monthly pricing is tiered, based primarily on number of subscribers and your average cost of service. We will also entertain percent or flat fee per transaction payment models. We may negotiate with you to find a mutually agreeable cost. We grow as you grow. 
 
 = We want to keep our content on our own servers so we have more control. Is this possible? =
-Yes. This is a great benefit and the most common scenario. You continue to manage your content on your site. We provide various integration hooks to authenticate and track your subscribers remotely. 
+Yes. This is a great benefit and the suggested method. You continue to manage your content on your site. We provide various integration hooks to authenticate and track your subscribers remotely. 
 
 = How simple or complex is the integration of your service? How long does it normally take? =
 Integration can be as simple or complex as you need it to be - meaning, as you further customize your subscriber's experience, more programming integration time and skills may be required. A simple integration which requires basic experience can take as little as 3-5 days. More complex integration will take longer, perhaps weeks as you wish to build a complete custom interface using our flexible API. We admit we've have had very successful clients with large subscriber bases that have taken 3-5 months to fully integrate and test before deploying - a testament to the power of our platform. 
@@ -89,13 +94,13 @@ We support all the most popular payment gateways and can quickly tie in new gate
 Yes. 
 
 = How long has Subscription DNA&reg; been in business? =
-Subscription DNA (formerly iSubscribe.TVTM) is a subsidiary company of successful small web development company, Atlas Design and Technology, Ltd., based in Cincinnati, Ohio. Atlas has been in business since 1997 and officially launched the iSubscribe.TV application in 2001. iSubscribe.TV was reinvented and rebranded in 2009 to Subscription DNA&reg;. 
+Subscription DNA is a sister company of successful small web development company, Atlas Design and Technology, Ltd., based in Cincinnati, Ohio. Atlas has been in business since 1997 and officially launched the iSubscribe.TV application in 2001. iSubscribe.TV was reinvented and rebranded in 2007 to Subscription DNA&reg;. 
 
 = Are you large company? How can we get the attention we may need? =
-With our small business approach, we are not looking for huge numbers of clients. We want to keep business simple, provide personal support, and build trust and confidence in the value of our business relationship. To run a successful subscription based website, you need the right subscription billing and membership tools and the right team. You need Subscription DNA&reg;.
+With our small business approach, we are not looking for huge numbers of clients. We want to keep business simple, provide personal support, and build trust and confidence in the value of our business relationship. To run a successful subscription based website, you need the right subscription billing and membership tools and the right team. You need Subscription DNA&reg;.  Please contact us for references.
 
 == Screenshots ==
-Screenshots will be added shortly!  For more information, please contact us at http://www.SubscriptionDNA.com/contact/
+For screenshots, please signup for a sandbox demonstration at http://www.SubscriptionDNA.com/contact/
 
 == Changelog ==
 = 1.0.1 =
@@ -112,9 +117,9 @@ adjust layout of default member screens
 modify js function naming to better prevent colliding js
 
 = 2.0 =
-soap api is replaced with latest <b>REST</b> api,<br>
-password reset options added,<br>
-members can now upgrade subscription,<br>
+<b>REST</b> api is now available in addition to original SOAP api.<br>
+password recovery reset option added.<br>
+members can now upgrade subscription.<br>
 wordpress pages can now be protected for individual services.<br>
 shortcodes introduced for all subscriptionDNA pages.<br>
 [subscriptiondna-login] SubscriptionDNA Login Page.<br>
@@ -154,4 +159,4 @@ You're out there. Innovating, sometimes by task, sometimes by passion. We crave 
 
 Help make our platform better and perhaps earn some bucks for your suggestions, widgets and custom apps. Who knows, maybe you'll even procure an opportunity to become part of our team.
 
-Register now for sandbox access and API reference documentation.
+Register now for sandbox access and API reference documentation and let's work together.
