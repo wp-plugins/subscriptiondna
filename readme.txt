@@ -112,22 +112,22 @@ adjust layout of default member screens
 modify js function naming to better prevent colliding js
 
 = 2.0 =
-soap api is replaced with latest REST api<br>
-password reset options added<br>
-members can now upgrade subscription<br>
-wordpress pages can now be protected for individual services<br>
-shortcodes introduced for all subscriptionDNA pages
-[subscriptiondna-login] SubscriptionDNA Login Page
-[subscriptiondna-subscribe] SubscriptionDNA Registration page
-[subscriptiondna-forgot-password] SubscriptionDNA forgot password page
-[subscriptiondna-members] SubscriptionDNA members home page
-[subscriptiondna-my-profile] SubscriptionDNA user profile management page
-[subscriptiondna-change-password] SubscriptionDNA change password page
-[subscriptiondna-manage-subscriptions] SubscriptionDNA manage subscriptions page
-[subscriptiondna-payment-methods] SubscriptionDNA manage credit cards list
-[subscriptiondna-transactions] SubscriptionDNA transactions listing page
-[subscriptiondna-groups] SubscriptionDNA groups management page
-[subscriptiondna-gift] SubscriptionDNA gift subscription page
+soap api is replaced with latest REST api,<br>
+password reset options added,<br>
+members can now upgrade subscription,<br>
+wordpress pages can now be protected for individual services.<br>
+shortcodes introduced for all subscriptionDNA pages.
+[subscriptiondna-login] SubscriptionDNA Login Page.
+[subscriptiondna-subscribe] SubscriptionDNA Registration page.
+[subscriptiondna-forgot-password] SubscriptionDNA forgot password page.
+[subscriptiondna-members] SubscriptionDNA members home page.
+[subscriptiondna-my-profile] SubscriptionDNA user profile management page.
+[subscriptiondna-change-password] SubscriptionDNA change password page.
+[subscriptiondna-manage-subscriptions] SubscriptionDNA manage subscriptions page.
+[subscriptiondna-payment-methods] SubscriptionDNA manage credit cards list.
+[subscriptiondna-transactions] SubscriptionDNA transactions listing page.
+[subscriptiondna-groups] SubscriptionDNA groups management page.
+[subscriptiondna-gift] SubscriptionDNA gift subscription page.
 
 == Upgrade Notice ==
 = 1.0.1 =
