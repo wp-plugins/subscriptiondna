@@ -4,7 +4,7 @@ Website: http://www.SubscriptionDNA.com/
 Plugin URL: http://www.SubscriptionDNA.com/wordpress/
 Tags: enterprise, invoice, registration, subscribe, ordering, protect, subscription, member, membership, billing, payments, authentication, pay per view, premium content, credit card, login
 Requires at least: 2.8
-Tested up to: 2.9.2
+Tested up to: 3.9.1
 Stable tag: trunk
 
 == Description ==
@@ -111,22 +111,6 @@ payment and subscription method enhancements
 adjust layout of default member screens
 modify js function naming to better prevent colliding js
 
-== Upgrade Notice ==
-= 1.0.1 =
-There are currently no upgrades.
-
-= 1.0.2 =
-minor adjustment required to profile screen
-
-= 1.0.3 =
-payment and subscription method enhancements
-adjust layout of default member screens
-modify js function naming to better prevent colliding js
-
-= 1.0.5 =
-javascript files separated in own js files
-new options added on member home pages
-
 = 2.0 =
 soap api is replaced with Latest REST api
 password reset options added
@@ -144,6 +128,24 @@ shortcodes introduced for all subscriptionDNA pages
 [subscriptiondna-transactions] SubscriptionDNA transactions listing page
 [subscriptiondna-groups] SubscriptionDNA groups management page
 [subscriptiondna-gift] SubscriptionDNA gift subscription page
+
+== Upgrade Notice ==
+= 1.0.1 =
+There are currently no upgrades.
+
+= 1.0.2 =
+minor adjustment required to profile screen
+
+= 1.0.3 =
+payment and subscription method enhancements
+adjust layout of default member screens
+modify js function naming to better prevent colliding js
+
+= 1.0.5 =
+javascript files separated in own js files
+new options added on member home pages
+
+
 
 
 == Attention Developers ==
