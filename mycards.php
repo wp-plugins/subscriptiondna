@@ -56,7 +56,7 @@ if($_REQUEST["save_cc_info"])
 	}
 	?>	
 	
-        <script type="text/javascript" src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/ccinfo.js"></script>
+        <script type="text/javascript" src="/wp-content/plugins/subscriptiondna/ccinfo.js"></script>
 	<form name="cc_form" method="post" action="" onsubmit="return frmValidate(this);">	
 		<table>
 			<tr>

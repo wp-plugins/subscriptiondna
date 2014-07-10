@@ -112,10 +112,10 @@ jQuery(document).ready(function () {
             jQuery('#username_validated').val("");
             jQuery('#x_submit').prop("disabled", true);
             
-            validateUsername.removeClass('error').html('<img src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/images/loader.gif" height="16" width="16" />');
+            validateUsername.removeClass('error').html('<img src="/wp-content/plugins/subscriptiondna/images/loader.gif" height="16" width="16" />');
             this.timer = setTimeout(function () {
                 jQuery.ajax({
-                    url: '<?php echo(get_option("siteurl")); ?>?dna_validate=login_name',
+                    url: '/?dna_validate=login_name',
                     data: 'login_name=' + t.value,
                     dataType: 'html',
                     type: 'GET',
@@ -145,10 +145,10 @@ jQuery(document).ready(function () {
             if (this.timer) clearTimeout(this.timer);
             jQuery('#email_validated').val("");
             jQuery('#x_submit').prop("disabled", true);
-            validateEmail.removeClass('error').html('<img src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/images/loader.gif" height="16" width="16" />');
+            validateEmail.removeClass('error').html('<img src="/wp-content/plugins/subscriptiondna/images/loader.gif" height="16" width="16" />');
             this.timer = setTimeout(function () {
                 jQuery.ajax({
-                    url: '<?php echo(get_option("siteurl")); ?>?dna_validate=email' ,
+                    url: '/?dna_validate=email' ,
                     data: 'email='+ t.value,
                     dataType: 'html',
                     type: 'GET',
@@ -175,10 +175,10 @@ jQuery(document).ready(function () {
         var t = this; 
         if (this.value != this.lastValue && this.value!="") {
             if (this.timer) clearTimeout(this.timer);
-            validatePromo.removeClass('error').html('<img src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/images/loader.gif" height="16" width="16" />');
+            validatePromo.removeClass('error').html('<img src="/wp-content/plugins/subscriptiondna//images/loader.gif" height="16" width="16" />');
             this.timer = setTimeout(function () {
                 jQuery.ajax({
-                    url: '<?php echo(get_option("siteurl")); ?>?dna_validate=promo_code',
+                    url: '/?dna_validate=promo_code',
                     data: 'promo_code=' + t.value,
                     dataType: 'html',
                     type: 'GET',
@@ -195,7 +195,7 @@ jQuery(document).ready(function () {
 });
 //-->
 </script>  
-<script type="text/javascript" src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/dna.js"></script>
+<script type="text/javascript" src="/wp-content/plugins/subscriptiondna/dna.js"></script>
 
 <div align="center" id="DNAFormFields"> 
 <div style="color:#990000;">
@@ -384,7 +384,7 @@ for($i=$year;$i<=$year+9;$i++)
 }
 ?>
 </select> 
- <br><span id="cc_exp_month_lbl_error" class="lblErr"></span><span id="cc_exp_year_lbl_error" class="lblErr"></span>
+ <br><span id="cc_exp_month_lbl_error" class="lblErr"></span><br><span id="cc_exp_year_lbl_error" class="lblErr"></span>
 </td> 
 </tr> 
  

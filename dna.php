@@ -491,7 +491,7 @@ function SubscriptionDNA_ShortCode_Page($file_name,$page_name)
     if($dna_options["menu"]=="1")
         include("menu.php");
     ?>
-	<link rel='stylesheet' href='<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/styles.css' type='text/css'/>
+	<link rel='stylesheet' href='/wp-content/plugins/subscriptiondna/styles.css' type='text/css'/>
     <?php
     include($file_name.".php");
     $contents=  ob_get_contents();
@@ -626,7 +626,7 @@ function SubscriptionDNA_wp_head ( )
 {
 
 ?>
-	<link rel='stylesheet' href='<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/styles.css' type='text/css'/>
+	<link rel='stylesheet' href='/wp-content/plugins/subscriptiondna/styles.css' type='text/css'/>
     <?php
         if($_SESSION['login_name']!="")
         {
@@ -1134,7 +1134,7 @@ if ( function_exists ( 'add_action' ) )
 {
 
 	$Aarzi = add_action ( 'admin_menu' , 'SubscriptionDNA_admin_menu' ) ;
-	//$Aarzi = add_action ( 'wp_head' , 'SubscriptionDNA_wp_head' ) ;
+	$Aarzi = add_action ( 'wp_head' , 'SubscriptionDNA_wp_head' ) ;
 	$Aarzi = add_action(  'wp_footer', 'SubscriptionDNA_wp_footer');
 	
         add_action ( 'the_excerpt' , 'SubscriptionDNA_Get_Page_Content' , 10 ) ;

@@ -53,7 +53,7 @@
 			?>
 			
 
-                        <script type="text/javascript" src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/ccinfo.js"></script>
+                        <script type="text/javascript" src="/wp-content/plugins/subscriptiondna/ccinfo.js"></script>
 				<form method="post" action="?&subId=<?=$_REQUEST['subId']?>&renew=renew&confirmation_page=0">
                                     <input type="hidden" name="card_id" value="<?php echo($_REQUEST["card_id"]); ?>">
                 <h2>Renew Your Expired Subscription</h2>
@@ -281,7 +281,7 @@ if(count($packages)>0)
 $newPackages=0;
 ?>
 
-<script type="text/javascript" src="<?php echo(WP_PLUGIN_URL); ?>/subscriptiondna/ccinfo.js"></script>
+<script type="text/javascript" src="/wp-content/plugins/subscriptiondna/ccinfo.js"></script>
 <form name='customSubscribeForm' action='' method='POST'>
     <table id="packagesList" cellpadding="3" width="100%">
         
