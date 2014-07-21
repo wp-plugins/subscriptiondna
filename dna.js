@@ -219,18 +219,22 @@ function checkForm(f) {
     if(checkEmpty("password","Please enter Password."))
         validatePasswords(f);
     checkEmpty("password2","Please re-enter Password.");
-     
-    checkEmpty("cc_name","Please enter Name on Card.");
-    checkEmpty("cc_type","Please select Card Type.");
-    if(checkEmpty("cc_number","Please enter Card Number."))
-    checkCreditCard(f);
-    checkEmpty("cc_exp_month","Expiry Month");
-    if(checkEmpty("cc_exp_year","Expiry Year"))
-    checkCreditCardExpiry(f);
-     
-	checkEmpty("country","Please select Country.");
-	checkEmpty("address1","Please enter Address.");
-	checkEmpty("city","Please enter City.");
+    if(!xGetElementById("check_mo_1").checked && !xGetElementById("check_mo").checked)
+        ValidateField(false,"check_mo","Please select payment method.");
+    
+    if(xGetElementById("check_mo_1").checked)
+    {
+        checkEmpty("cc_name","Please enter Name on Card.");
+        checkEmpty("cc_type","Please select Card Type.");
+        if(checkEmpty("cc_number","Please enter Card Number."))
+        checkCreditCard(f);
+        checkEmpty("cc_exp_month","Expiry Month");
+        if(checkEmpty("cc_exp_year","Expiry Year"))
+        checkCreditCardExpiry(f);
+    }
+    checkEmpty("country","Please select Country.");
+    checkEmpty("address1","Please enter Address.");
+    checkEmpty("city","Please enter City.");
     checkEmpty("state","Please select State.");
     checkEmpty("zipcode","Please enter Zip.");
     

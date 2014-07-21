@@ -1,5 +1,6 @@
 <div align="center">
 <?php
+
 if($_POST["cmdLogin"])
 {
 
@@ -7,6 +8,7 @@ if($_POST["cmdLogin"])
 		{
 				
 			$ipAddress = $_SERVER['REMOTE_ADDR'];
+                        
                         $data=array(
                             "login_name"=>$_POST['login_name'], 
                             "password"=>$_POST['password'], 
@@ -14,8 +16,9 @@ if($_POST["cmdLogin"])
                             "return_group_info"=>"1",
                             "device_id"=>$_COOKIE["dna_device_id"],
                             "user_agent"=>$_SERVER["HTTP_USER_AGENT"],
-                            "reset"=>"");
-			$result = SubscriptionDNA_ProcessRequest($data, "user/login");
+                            "reset"=>$_REQUEST["reset_devices"]);
+                        $result = SubscriptionDNA_ProcessRequest($data, "user/login");
+                        
 			if($result->errCode == 1)
 			{
 				$_SESSION['user_session_id'] = $result->user_session_id;
@@ -44,7 +47,7 @@ if($_POST["cmdLogin"])
 					$url=get_permalink($GLOBALS['SubscriptionDNA']['Settings']['dna_pages']["members"]);
 								
 				?>
-                <script>
+                                <script>
 				location.href='<?php echo($url); ?>';					
 				</script>
                 <?php
@@ -113,6 +116,16 @@ if($_REQUEST["action"]=="logout")
 <table id='dna-login'>
 <tr><td class="dna-heading">Username:</td><td><input type='text' name='login_name' value='' size='10' maxlength='50'></td></tr>
 <tr><td class="dna-heading">Password:</td><td><input type='password' name='password' size='10' maxlength='20'></td></tr>
+<?php
+if($result->errCode==-31)
+{
+    ?>
+<tr><td class="dna-heading">Reset Devices:</td><td><input type='checkbox' name='reset_devices' value="1"></td></tr>
+    
+    <?php
+}
+
+?>
 <tr><td></td><td><input type='submit' value='Login' name="cmdLogin"></td></tr>
 </table>
 </form>

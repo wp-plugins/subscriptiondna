@@ -50,7 +50,12 @@ function SubscriptionDNA_Initialize ( )
         $GLOBALS['SubscriptionDNA']['DPages'][]=array("name"=>"groups","title"=>"My Group","order"=>"11",'p'=>"members");
         
         $GLOBALS['SubscriptionDNA']['Settings'] = SubscriptionDNA_Get_Settings () ;
-        
+        $siteurl=get_option("siteurl");
+        if($_SERVER["SERVER_PORT"]=="443")
+        {
+           $siteurl=  str_replace("http:", "https:", $siteurl);
+        }
+        $GLOBALS['SubscriptionDNA']["siteurl"]= $siteurl;
         $seruce_list = $GLOBALS['SubscriptionDNA']['Settings']['HTTPS'];
         if(is_array($seruce_list))
         {
@@ -491,7 +496,7 @@ function SubscriptionDNA_ShortCode_Page($file_name,$page_name)
     if($dna_options["menu"]=="1")
         include("menu.php");
     ?>
-	<link rel='stylesheet' href='/wp-content/plugins/subscriptiondna/styles.css' type='text/css'/>
+	<link rel='stylesheet' href='<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/styles.css' type='text/css'/>
     <?php
     include($file_name.".php");
     $contents=  ob_get_contents();
@@ -626,7 +631,7 @@ function SubscriptionDNA_wp_head ( )
 {
 
 ?>
-	<link rel='stylesheet' href='/wp-content/plugins/subscriptiondna/styles.css' type='text/css'/>
+	<link rel='stylesheet' href='<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/styles.css' type='text/css'/>
     <?php
         if($_SESSION['login_name']!="")
         {

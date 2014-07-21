@@ -5,15 +5,29 @@
 	$alreadySigned=array();
         if(isset($_REQUEST["Subscribe_API"]))
         {
-            if(isset($_POST["cc_on_file"]))
+            $paid_by_credit_card=1;
+            $check_mo=0;
+            if($_POST["payment_method"]=="1")
                 $existing_credit_card="1";//$_POST["ccid"];
+            else if($_POST["payment_method"]=="2")
+            {
+                $existing_credit_card="";
+                $_REQUEST["ccid"]="";
+            }
+            else
+            {
+                $paid_by_credit_card="";
+                $existing_credit_card="";
+                $_REQUEST["ccid"]="";
+                $check_mo=1;
+            }
             list($service_id,$billing_routine_id)=explode(";",$_POST["package"]);
             $requestData = array(
                    'login_name' => $login_name,
                    'password' => $_SESSION['password'],
                    'service_id' => $service_id,
                    'billing_routine_id' => $billing_routine_id,
-                   'paid_by_credit_card' => 1,
+                   'paid_by_credit_card' => $paid_by_credit_card,
                    'existing_credit_card' => $existing_credit_card,
                    'card_id'=>$_REQUEST["ccid"],
                    'cc_name' => $_POST["cc_name"],
@@ -24,7 +38,7 @@
                    'cc_cvv' => $_POST["cc_cvv"],
                    'how_referred' => $how_referred,
                    'promo_code' => $_POST["promo_code"],
-                   'check_mo' => '',
+                   'check_mo' =>$check_mo,
                    'tax' => ''
              ); 
             //print_r($requestData);die();
@@ -53,7 +67,7 @@
 			?>
 			
 
-                        <script type="text/javascript" src="/wp-content/plugins/subscriptiondna/ccinfo.js"></script>
+                        <script type="text/javascript" src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/ccinfo.js"></script>
 				<form method="post" action="?&subId=<?=$_REQUEST['subId']?>&renew=renew&confirmation_page=0">
                                     <input type="hidden" name="card_id" value="<?php echo($_REQUEST["card_id"]); ?>">
                 <h2>Renew Your Expired Subscription</h2>
@@ -271,7 +285,27 @@ if(isset($_POST["ValidateCode"]))
 $packages = SubscriptionDNA_ProcessRequest("","list/packages");
 $login_name = $_SESSION['login_name'];
 ?>
+<script>
+function packageChanged(packob,package_id)
+{
+    jQuery("#package").val(package_id);
+    if(jQuery(packob).hasClass("package-box"))
+    {
 
+        jQuery(".package-box-main").each(function() {
+
+            jQuery(this).removeClass('package-box-active');
+            jQuery(this).addClass('package-box');
+
+        }); 
+        jQuery(packob).removeClass('package-box');
+        jQuery(packob).addClass("package-box-active")
+    }
+   
+
+   
+}
+</script>
 <div style="color:#990000">
 <h4><?php echo($_POST["response"]); ?></h4>
 </div>
@@ -281,7 +315,8 @@ if(count($packages)>0)
 $newPackages=0;
 ?>
 
-<script type="text/javascript" src="/wp-content/plugins/subscriptiondna/ccinfo.js"></script>
+<script type="text/javascript" src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/ccinfo.js"></script>
+<div id="DNAFormFields">
 <form name='customSubscribeForm' action='' method='POST'>
     <table id="packagesList" cellpadding="3" width="100%">
         
@@ -292,44 +327,61 @@ $newPackages=0;
 		</tr>
 		<tr valign=top>			
             <td colspan="3">
-				<div style="border: 1px solid gray; padding: 5px;">
-				<!-- height: 150px; overflow: auto; -->
-				<?php 
-				foreach($packages as $package)
-				{
-					if(!in_array($package->service_id,$alreadySigned))
-					{
-					$newPackages++;
-					?>
-					<div id="innerDiv">
-					<strong><input type="radio" name="package" id="packages_<?php echo($package->id); ?>"  value="<?php echo($package->service_id); ?>;<?php echo($package->billing_routine_id); ?>" <?php if($package->defaultval=="Yes") echo("checked");  ?>  ><?php echo($package->package_name);  ?></strong>
-						<div style="margin-left:20px;"><?php echo($package->package_description); ?></div><br>
-					</div>
-					<?php
-					} 
-				}
-				?>
-				</div>
-				<br>
-			</td>
+                    <div style="border: 1px solid gray; padding: 5px;">
+                    <!-- height: 150px; overflow: auto; -->
+                    <?php 
+                    foreach($packages as $package)
+                    {
+                            if(!in_array($package->service_id,$alreadySigned))
+                            {
+                                $newPackages++;
+                                if($package->service_id.";".$package->billing_routine_id==$_POST["package"] || ($package->defaultval=="Yes" && !$selected))
+                                {
+                                    $selected=$package->uid;
+                                    $selected_billing=$package->billing_routine_id;
+                                    $selected_package=$package->service_id.";".$package->billing_routine_id;
+                                }
+                            ?>
+                            <div title="Click to select your subscription plan."  id="innerDiv_<?php echo($package->uid); ?>"  class='package-box package-box-main' onclick='packageChanged(this,"<?php echo($package->service_id); ?>;<?php echo($package->billing_routine_id); ?>");'>
+                            <strong><?php echo($package->package_name);  ?></strong>
+                            <div ><?php echo($package->package_description); ?></div>
+                            </div>
+                            <?php
+                            } 
+                    }
+                    ?>
+                    <input type="hidden" name="package" id='package' value="<?php echo($selected_package);  ?>" />                                
+                    </div>
+                <br>
+            </td>
         </tr>
-<tr> 
+        <tr> 
         <td align="left"><span id="promo_code_lbl" class="lbl">Enter Valid Promo Code</span>&nbsp;</td> 
         <td colspan="2"><input TYPE="TEXT" NAME="promo_code" id="promo_code" value="<?php echo(@$_REQUEST["promo_code"]); ?>"  style="width:175px; padding-left: 4px;" size="30" class="noErr" MAXLENGTH="100">		<input type="submit" onclick="this.form.action='';" name="ValidateCode" value="Validate Promocode" /> 
         <span id="promo_code_lbl_error" class="lblErr"><?php echo($code_msg); ?></span></td> 
         </tr>         
-		<?php
-		if($ccinfo)
-		{
-		?>
         <tr valign=top>
-            <td colspan="3">
-			<input type='checkbox' name='cc_on_file' <?php if($_POST["cc_on_file"]=="1" or $ccinfo) echo("checked"); ?> value='1' onclick="hideShowCCInfo(this.checked);">Use Existing Credit Card<br>
-		</td>
-		</tr>	
+            <td>Payment Method</td>
+            <td colspan="2">
+        <?php
+        if($ccinfo)
+        {
+        ?>
+            <input type='radio' name='payment_method' <?php if($_POST["payment_method"]=="1" or ($ccinfo && $_POST["payment_method"]=="")) echo("checked"); ?> value='1' onclick="hideShowCCInfo(this.checked);">Use Existing Credit Card<br>
+            <input type='radio' name='payment_method' <?php if($_POST["payment_method"]=="3") echo("checked"); ?> value='3' onclick="hideShowCCInfo(true);">Check/Mo<br>
+            <input type='radio' name='payment_method' <?php if($_POST["payment_method"]=="2") echo("checked"); ?> value='2' onclick="hideShowCCInfo(false);">Use New Credit Card<br>
+        <?php 
+        }
+        ?>        
+            </td>
+        </tr>	
+        <?php
+        if($ccinfo)
+        {
+        ?>
         <tr valign=top id="existingCCInfo">
             <td>
-			<b>Payment Method:</b>
+			<b>Existing card:</b>
 			<td>
 			<td>
 			<select name="ccid" id="ccid" style="width:250px;">
@@ -355,7 +407,14 @@ $newPackages=0;
         </tr>
     </table>
 </form>
+</div>
 <script>
+
+if("<?php echo($selected_package); ?>"!="")
+packageChanged(document.getElementById("innerDiv_<?php echo($selected); ?>") ,"<?php echo($selected_package); ?>");
+</script> 
+<script>
+    
 <?php 
 if($newPackages==0)
 {
