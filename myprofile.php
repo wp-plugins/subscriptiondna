@@ -579,56 +579,16 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 	}
 	
 	function verify(){
-		if(SubscriptionDNA_GetElement('login_name').value == ""){
-				alert("Please provide Login Name");
-				SubscriptionDNA_GetElement('login_name').focus();
-				return false;
-			}else if (SubscriptionDNA_GetElement('login_name').value.indexOf(' ') != -1) {			
-				alert("Space not allowed in the Login Name");
-				SubscriptionDNA_GetElement('login_name').focus();
-				return false;			
-			}else{		 
-				 if(check_special_chr(SubscriptionDNA_GetElement('login_name').value)==false){
-					alert ("Special characters are not allowed in Login Name.");
-					SubscriptionDNA_GetElement('login_name').focus();
-					return false;
-				}
-			}	
-			/*if(SubscriptionDNA_GetElement('password').value!=""){
-				if(check_special_chr(SubscriptionDNA_GetElement('password').value)==false){	
-					alert ("Your Password has special characters. \nThese are not allowed.\n Please remove them and try again.");
-					SubscriptionDNA_GetElement('password').focus();
-					return false;
-				}
-				if(SubscriptionDNA_GetElement('password2').value==""){
-					alert("Please provide Re-type Passowrd.");
-					SubscriptionDNA_GetElement('password2').focus();	
-					return false;
-				}else if(SubscriptionDNA_GetElement('password').value != SubscriptionDNA_GetElement('password2').value){
-					alert("Password and Re Type Passowrd fields do not match");
-					SubscriptionDNA_GetElement('password').value='';
-					SubscriptionDNA_GetElement('password2').value='';
-					SubscriptionDNA_GetElement('password').focus();
-					return false;
-				}
-			}*/		
+			
 			
 			if(SubscriptionDNA_GetElement('first_name').value == ""){
 				alert("Please provide First Name");
-				SubscriptionDNA_GetElement('first_name').focus();
-				return false;
-			}else if(check_special_chr(SubscriptionDNA_GetElement('first_name').value)==false){	
-				alert ("Special characters are not allowed in First Name.");			
 				SubscriptionDNA_GetElement('first_name').focus();
 				return false;
 			}
 			
 			if(SubscriptionDNA_GetElement('last_name').value == ""){
 				alert("Please provide Last Name");
-				SubscriptionDNA_GetElement('last_name').focus();
-				return false;
-			}else if(check_special_chr(SubscriptionDNA_GetElement('last_name').value)==false){	
-				alert ("Special characters are not allowed in Last Name.");			
 				SubscriptionDNA_GetElement('last_name').focus();
 				return false;
 			}
