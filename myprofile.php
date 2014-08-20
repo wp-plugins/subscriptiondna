@@ -67,10 +67,6 @@ SubscriptionDNA_LoginCheck($profile);
 <tr>
     <td colspan="2" id="avail_msg"><?=$msg ?></td>
 </tr>
-<tr>
-    <td>Login Name</td>
-    <td><input name="new_login_name" id="new_login_name" type="text" value="<?=$profile->login_name; ?>" /></td>
-</tr>
 
 <tr><td colspan="2" class='dna-heading'>Contact Information</td></tr>
 <tr>

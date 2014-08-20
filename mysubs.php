@@ -39,7 +39,8 @@
                    'how_referred' => $how_referred,
                    'promo_code' => $_POST["promo_code"],
                    'check_mo' =>$check_mo,
-                   'tax' => ''
+                   'tax' => '',
+                   'change'=>$_REQUEST["change"]
              ); 
             //print_r($requestData);die();
             $result = SubscriptionDNA_ProcessRequest($requestData,"service/subscribe",true);
@@ -206,14 +207,14 @@
 			</tr>	
 				
 	<?php		
-
+        $alreadySigned=array();
 	foreach($subscriptions as $subscription)
 	{
 		if(!$subscription)
 		break;
 		if($subscription->status=='Active')
 		$_SESSION['subscription']="1";
-		if($subscription->status!="Unsubscribed")
+		if($subscription->status!="Unsubscribed" && $subscription->status!="Expired" && $subscription->status!="Pending")
 		$alreadySigned[]=$subscription->service_id;	
 		?>
 			
@@ -233,11 +234,9 @@
 
 		<?php
 		if(trim($subscription->status)=='Active'){
-			echo "<a onClick=\"if(!confirm('Are you sure you want to Unsubscribe?')) return(false);\" href='?&subId=" . $subscription->sub_id . "&status=Unsubscribed'>Unsubscribe</a>&nbsp;| <a onClick=\"if(!confirm('Are you sure you want to Discontinue?')) return(false);\"  href='?&subId=" . $subscription->sub_id . "&status=Discontinued'>Discontinue</a><br>";
+			echo "<a href='?&change=" . $subscription->sub_id . "'>Change</a>&nbsp;|&nbsp;<a onClick=\"if(!confirm('Are you sure you want to Unsubscribe?')) return(false);\" href='?&subId=" . $subscription->sub_id . "&status=Unsubscribed'>Unsubscribe</a>&nbsp;| <a onClick=\"if(!confirm('Are you sure you want to Discontinue?')) return(false);\"  href='?&subId=" . $subscription->sub_id . "&status=Discontinued'>Discontinue</a><br>";
 		}else if($subscription->status=='Discontinued'){
 			echo "<a onClick=\"if(!confirm('Are you sure you want to Unsubscribe?')) return(false);\"  href='?&subId=" . $subscription->sub_id . "&status=Unsubscribed'>Unsubscribe</a>&nbsp;| <a onClick=\"if(!confirm('Are you sure you want to Re-activate?')) return(false);\"  href='?&subId=" . $subscription->sub_id . "&status=Active'>Re-activate</a><br>";
-		}else if($subscription->status=='Expired'){
-			echo "<a onClick=\"if(!confirm('Are you sure you want to Renew?')) return(false);\" href='?&subId=" . $subscription->sub_id . "&card_id=" . $subscription->ccid . "&renew=renew&confirmation_page=1'>Renew</a><br>";
 		}
 ?>
 			<br>
@@ -313,15 +312,65 @@ function packageChanged(packob,package_id)
 if(count($packages)>0)
 {
 $newPackages=0;
+
+	if(isset($_REQUEST["change"]))
+	{
+            $data=array("sub_id"=>$_REQUEST["change"],"login_name"=>$_SESSION['login_name']);
+            $result = SubscriptionDNA_ProcessRequest($data,"subscription/get_credit_info",true);
+	}
+	
+	if($result["remaining_amount"]>0)
+	{	
+	?>
+	
+	<fieldset>
+	<legend style="color:#0000FF"><b>Change Subscription</b></legend>
+	<br>
+	<div class="red">
+	<b>Current subscription</b> to <?php echo($result["service_name"]);?> expires <?php echo($result["expires"]);?>
+	<ul>
+	<li><b>Service:</b> <?php echo($result["service_name"]);?><br>
+	<?php
+	if($result["routine_name"]!="")
+	{
+	?>
+	<li><b>Billing Routine:</b> <?php echo($result["routine_name"]);?><br>
+	<?php
+	}
+	?>
+	</ul>
+	
+	<br>
+	<b>Last Invoice Payment:</b> $<?php echo($result["amount"]);?> was completed on <?php echo($result["invoice_date"]);?><br>
+	<b>Total Subscription Hours:</b> <?php echo($result["total_hours"]);?> (difference of expiry date and last invoice date)<br>
+	<b>Amount Per Hour:</b> Last Payment ($<?php echo($result["amount"]);?>) / Total Subscription Hours (<?php echo($result["total_hours"]);?>) = $<?php echo($result["amount_per_hour"]);?><br>
+	<br>
+	<b>Remaining Subscription Hours:</b> <?php echo($result["remaining_hours"]);?> <br>
+	<b>Total Credit:</b> Remaining Hours (<?php echo($result["remaining_hours"]);?>) x Amount Per Hour ($<?php echo($result["amount_per_hour"]);?>) = $<?php echo($result["remaining_amount"]);?>; <br>
+	<br>
+	<b>Credit Discount</b> of $<?php echo($result["remaining_amount"]);?> will be applied toward your new subscription.<br>
+	</div>
+	</fieldset>
+	<br>
+	<?php
+	}
+	else if($_REQUEST["change"]!="")
+	{
+		?>
+			<b>Remaining Subscription Balance is $0.0.
+		<?php
+	}
 ?>
+
 
 <script type="text/javascript" src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/ccinfo.js"></script>
 <div id="DNAFormFields">
 <form name='customSubscribeForm' action='' method='POST'>
     <table id="packagesList" cellpadding="3" width="100%">
         
-		<input type='hidden' name='login_name' value='<?= $_SESSION['login_name']?>'>
-		<input type='hidden' name='password' value='<?= $_SESSION['password']?>'>
+        <input type='hidden' name='login_name' value='<?= $_SESSION['login_name']?>'>
+        <input type='hidden' name='password' value='<?= $_SESSION['password']?>'>
+        <input type="hidden"  value="<?php echo($_REQUEST["change"]); ?>" name="change" id="change" />
         <tr valign=top>
             <td colspan="3"><b>Subscription Plans:</b></td>
 		</tr>
@@ -368,11 +417,11 @@ $newPackages=0;
         {
         ?>
             <input type='radio' name='payment_method' <?php if($_POST["payment_method"]=="1" or ($ccinfo && $_POST["payment_method"]=="")) echo("checked"); ?> value='1' onclick="hideShowCCInfo(this.checked);">Use Existing Credit Card<br>
-            <input type='radio' name='payment_method' <?php if($_POST["payment_method"]=="3") echo("checked"); ?> value='3' onclick="hideShowCCInfo(true);">Check/Mo<br>
-            <input type='radio' name='payment_method' <?php if($_POST["payment_method"]=="2") echo("checked"); ?> value='2' onclick="hideShowCCInfo(false);">Use New Credit Card<br>
         <?php 
         }
         ?>        
+            <input type='radio' name='payment_method' <?php if($_POST["payment_method"]=="3") echo("checked"); ?> value='3' onclick="hideShowCCInfo(true);">Check/Mo<br>
+            <input type='radio' name='payment_method' <?php if($_POST["payment_method"]=="2") echo("checked"); ?> value='2' onclick="hideShowCCInfo(false);">Use New Credit Card<br>
             </td>
         </tr>	
         <?php

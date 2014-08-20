@@ -6,24 +6,25 @@
 	if(count($transactions)<1){
 		echo '<div id="dna-login"><div id="failure">No Transaction Exists.</div></div>';
 	}
-		
+        else
+        {		
 	?>
 	
 <table id="dna-subscriptions" width="100%" cellpadding="3" cellspacing="0">
 <tr><td colspan="5"></td></tr>
 			<tr>
 				<th>Invoice</th>
-				<th>Payment Method</th>
-				<th>Amount</th>
-				<th>Txn Date</th>
-				<th>Status</th>
+				<th align="left">Payment Method</th>
+				<th align="left">Amount</th>
+				<th align="left">Txn Date</th>
+				<th align="left">Status</th>
 			</tr>	
 				
 	<?php		
 		$page_file="?";
 		
                 //page header
-                $minimumshow=1;
+                $minimumshow=20;
                 $display=20;
                 $upto=20;
                 if(isset($_REQUEST["dispalypages"]))
@@ -57,9 +58,9 @@
 				?>
 					<tr onmouseover="this.style.backgroundColor='#ebebeb'" onmouseout="this.style.backgroundColor='';">
 						<td><?php echo(str_pad($resultRow["invoice_id"],5,"0",STR_PAD_LEFT)); ?></td>
-						<td>
+						<td align="left">
 							<?php if ($resultRow["isCheckMO"]=="1") { ?>
-							<tr><td>Paid by Cash/Check/MO</td></tr>
+							Paid by Cash/Check/MO
 							<? } else { ?>
 							<?php echo($resultRow["card_number"]); ?> | <?php echo($resultRow["expire_date"]); ?> | <?php echo($resultRow["card_type"]); ?>
 							<?php
@@ -69,7 +70,7 @@
 						
 						<td>$<?php echo($resultRow["amount"]); ?></td>
 						<td><?php echo($resultRow["invoice_date"]); ?></td>
-					<td><?php echo($resultRow["payment_status"]); ?> <?php if ($resultRow["response_code"] != "1") { ?>(<?php echo("<a href='#a' title='". $resultRow["response_message"] . "' >" . $resultRow["response_code"] ); ?></a>) <? } ?></td>
+					<td><?php echo($resultRow["payment_status"]); ?> </td>
 					</tr>	
 				<?php
 			}
@@ -126,6 +127,7 @@
 
                                 print "</div></center>";
 
-                }	
+                }
+        }
 	
 ?>

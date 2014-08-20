@@ -16,6 +16,11 @@ if(isset($_REQUEST["x_submit"]))
             $custom_fields[substr($key,3)]= $val;
         }
     }
+    if($_REQUEST["check_mo"]=="1")
+        $_REQUEST["paid_by_credit_card"]="";
+    else
+        $_REQUEST["paid_by_credit_card"]="1";
+    
     list($service_id,$billing_routine_id)=explode(";",$_POST["packages"][0]);
     $data=array(
         "login_name"=>$_REQUEST["login_name"],
@@ -33,7 +38,7 @@ if(isset($_REQUEST["x_submit"]))
         "subscribe_to_service"=>"1",
         "service_id"=>$service_id,
         "billing_routine_id"=>$billing_routine_id,
-        "paid_by_credit_card"=>1,
+        "paid_by_credit_card"=>$_REQUEST["paid_by_credit_card"],
         "cc_name"=>$_REQUEST["cc_name"],
         "cc_type"=>$_REQUEST["cc_type"],
         "cc_number"=>$_REQUEST["cc_number"],
@@ -135,7 +140,7 @@ jQuery(document).ready(function () {
                     url: '/?dna_validate=login_name',
                     data: 'login_name=' + t.value,
                     dataType: 'html',
-                    type: 'GET',
+                    type: 'post',
                     success: function (j) {
                         
                         validateUsername.html(j);
@@ -168,7 +173,7 @@ jQuery(document).ready(function () {
                     url: '/?dna_validate=email' ,
                     data: 'email='+ t.value,
                     dataType: 'html',
-                    type: 'GET',
+                    type: 'post',
                     success: function (j) {
                         validateEmail.html(j);
                         if(j.indexOf("lblErr")>0) 
@@ -198,7 +203,7 @@ jQuery(document).ready(function () {
                     url: '/?dna_validate=promo_code',
                     data: 'promo_code=' + t.value,
                     dataType: 'html',
-                    type: 'GET',
+                    type: 'post',
                     success: function (j) {
                         validatePromo.html(j);
                         hidePaymentInfo();

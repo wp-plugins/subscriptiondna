@@ -125,7 +125,6 @@ else
 		<th>Name on Card</th>
 		<th>Card Number</th>
 		<th>Expiration Date</th>
-		<th>Subscriptions</th>
 		<th>Action</th>
 		</tr>	
 		
@@ -143,7 +142,6 @@ else
 			<td>" . $card["card_holder_name"] . "</td>
 			<td>" . $card["card_number"] . "</td>					
 			<td>" . $card["expire_date"] . "</td>
-			<td>(<a href='/members/subscriptions.php'>" . $card["no_of_subscriptions"] . "</a>)</td>
 			<td><a href='?&save_cc_info=1&cid=" . $card["ccid"] . "'>Edit</a> | <a onClick=\"if(!confirm('Are you sure you want to delete?')) return(false);\"  href='?&del_id=" . $card["ccid"] . "'>Delete</a></td>
 		</tr>";
 		
