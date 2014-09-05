@@ -118,6 +118,7 @@ shortcodes introduced for all subscriptionDNA pages.<br>
 [subscriptiondna-payment-methods] SubscriptionDNA manage credit cards list.<br>
 [subscriptiondna-transactions] SubscriptionDNA transactions listing page.<br>
 [subscriptiondna-groups] SubscriptionDNA groups management page.<br>
+
 [subscriptiondna-gift] SubscriptionDNA gift subscription page.<br>
 
 == Upgrade Notice ==
