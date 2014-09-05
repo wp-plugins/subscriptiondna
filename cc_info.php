@@ -26,7 +26,7 @@
             <td><span style='color:red'>*</span></td>
             <td>
                 <select name='cc_exp_month' id="cc_exp_month" size=1>
-					<option></option>
+                    <option></option>
                     <option value='01'>Jan</option>
                     <option value='02'>Feb</option>
                     <option value='03'>Mar</option>
@@ -56,10 +56,10 @@
         if(!$_REQUEST["save_cc_info"])
         {
         ?>
-        <tr valign=top>
+        <tr valign=top id="trCVV">
 		<td><b>CVC:</b></td>
 		<td>&nbsp;</td>
-		<td><input type='text' name='cc_cvv' id="cc_cvv" value='' size=5 maxlength=4></td>
+		<td><input type='text' name='cc_cvv' id="cc_cvv" value='' style="width:50px;" size=5 maxlength=4></td>
 	</tr>
         <?php 
         }

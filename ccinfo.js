@@ -130,3 +130,17 @@ function hideShowCCInfo(chk)
 	}
 }
 
+function dnaPaymentMethodChanged(mthd)
+{
+	if(mthd=="3")
+	{
+            document.getElementById('trCheckInfo').style.display="";
+            document.getElementById('trCVV').style.display="none";
+            document.getElementById('existingCCInfo').style.display="none";
+	}
+	else
+	{
+            document.getElementById('trCheckInfo').style.display="none";
+            document.getElementById('trCVV').style.display="";
+	}	
+}
