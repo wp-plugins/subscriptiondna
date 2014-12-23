@@ -19,10 +19,10 @@ wp_enqueue_script("jquery");
 </script>
 <?php
         
-        $msg='<font color="#009933">'.$_REQUEST["msg"].'</font>';        
+        echo(urldecode($_REQUEST["msg"]));       
 	$login_name = $_SESSION['login_name'];
 	$alreadySigned=array();
-        if(isset($_REQUEST["Subscribe_API"]))
+        if(isset($_REQUEST["SubscribeAPI"]))
         {
             $paid_by_credit_card=1;
             $check_mo=0;
@@ -63,15 +63,28 @@ wp_enqueue_script("jquery");
              ); 
             //print_r($requestData);die();
             $result = SubscriptionDNA_ProcessRequest($requestData,"service/subscribe",true);
+            if($_REQUEST["stop_auto_bill"]=="1" && $result["sub_id"]!="")
+            {
+                $data=array("login_name"=>$login_name,"sub_id"=>$result["sub_id"], "status"=>"Discontinued");
+                SubscriptionDNA_ProcessRequest($data,"subscription/change_status");
+            }
             //print_r($result);
             $msg='<font color="#00FF00">'.$result["errDesc"].'</font>';
+            
+            ?>
+            <script>
+            location.href='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['manage-subscriptions'])); ?>?msg=<?php echo(urlencode($msg)); ?>';
+            </script>
+            <?php
+            die();
+            
         }	
 	if($_REQUEST['status']){
 		$data=array("login_name"=>$login_name,"sub_id"=>$_REQUEST['subId'], "status"=>$_REQUEST['status']);
 		$result = SubscriptionDNA_ProcessRequest($data,"subscription/change_status");
 		?>
 		<script>
-		location.href='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['manage-subscriptions'])); ?>?msg=<?php echo($result->errDesc); ?>';
+		location.href='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['manage-subscriptions'])); ?>?msg=<?php echo(urlencode($result->errDesc)); ?>';
 		</script>
 		<?php
 		die();
@@ -84,7 +97,7 @@ wp_enqueue_script("jquery");
 		{
                         $data=array("sub_id"=>$_REQUEST['subId'], "confirmation_page"=>$_REQUEST['confirmation_page'], "login_name"=>$login_name);
 			$result = SubscriptionDNA_ProcessRequest($data,"subscription/renew");
-                        
+                        //print_r($result);
                         
                         $ccList = SubscriptionDNA_ProcessRequest(array("login_name"=>$login_name),"creditcard/list");
                         if(is_array($ccList) && count($ccList)>0)
@@ -100,8 +113,9 @@ wp_enqueue_script("jquery");
 			
 
                         <script type="text/javascript" src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/ccinfo.js"></script>
-				<form method="post" action="?&subId=<?=$_REQUEST['subId']?>&renew=renew&confirmation_page=0">
+				<form method="post" action="?&subId=<?=$_REQUEST['subId']?>&renew=renew">
                                     <input type="hidden" name="card_id" value="<?php echo($_REQUEST["card_id"]); ?>">
+                                    <input type="hidden" name="confirmation_page" value="<?php if ($_REQUEST["confirmation_page"] == "21"){echo("2");}else{echo("0");} ?>">
                 <h2><?php if ($_REQUEST["confirmation_page"] == "21"){echo("Extend Your ");}else{echo("Renew Your Expired ");} ?>Subscription</h2>
                 
                 <p>
@@ -127,8 +141,8 @@ wp_enqueue_script("jquery");
 						<tr>
                                                 <td valign="top">
                                                 <b>Subscription:</b><br />
-                                                        <?=$result->services ?><br />
-                                                        <?=$result->billing_routine ?>
+                                                        <?=$result->services ?>
+                                                        <?=$result->billing_routine ?><br>
                                                         <br>
                                                         Subscription Date: <?php echo($result->start_date); ?><br />
                                                         Subscription Expiration: <?php echo($result->expiry_date); ?><br />
@@ -211,14 +225,23 @@ wp_enqueue_script("jquery");
                                                     }
                                                     $result=array();
                                                     include 'cc_info.php';
-                                                    ?>                                            
+                                                    ?>    
+                                        <tr valign=top id="tr_no_auto_bill" >
+                                            <td nowrap>Disable Auto-Renewal: </td>
+                                            <td>&nbsp;</td> 
+                                            <td >
+                                                <input type="checkbox" name="stop_auto_bill" id="stop_auto_bill" value="1" <?php if($_REQUEST["stop_auto_bill"]=="1")echo("checked"); ?>>
+                                            </td>
+                                        </tr>
+                                            
 </table>
 					</td>
 					
                                         </tr>
-					
+                                        
 						<tr><td><br>
-						<input type="submit" value="<?php if ($_REQUEST["confirmation_page"] == "21"){echo("Extend");}else{echo("Renew");} ?> Subscription" /></td></tr>
+                                                <h3 id="msgProgress" style="display:none">Processing your request, Please wait..</h3>       
+						<input type="submit" onclick="this.style.display='none';document.getElementById('msgProgress').style.display='';" value="<?php if ($_REQUEST["confirmation_page"] == "21"){echo("Extend");}else{echo("Renew");} ?> Subscription" /></td></tr>
 					</table>
 				</form>
 			<?	
@@ -226,6 +249,8 @@ wp_enqueue_script("jquery");
 		}
 		else
 		{
+                    if(isset($_POST["confirmation_page"]))
+                    {
                         if($_REQUEST["payment_method"]=="2")
                             $_REQUEST["paid_by_new_card"]=1;
                         else if($_REQUEST["payment_method"]=="3")
@@ -250,10 +275,25 @@ wp_enqueue_script("jquery");
 			$result = SubscriptionDNA_ProcessRequest($data,"subscription/renew",true);
 	
 			if($result["errCode"]!=10){
-				$msg='<font color="#FF0000">'.$result["errDesc"].', Please try again</font>';
-			}else{
-				$msg='<font color="#009933">'.$result["errDesc"].'</font>';
+				$msg='<font color="#063">'.$result["errDesc"].', Please try again</font>';
 			}
+                        else
+                        {
+                            if($_REQUEST["stop_auto_bill"]=="1")
+                            {
+                                $data=array("login_name"=>$login_name,"sub_id"=>$_REQUEST['subId'], "status"=>"Discontinued");
+                                SubscriptionDNA_ProcessRequest($data,"subscription/change_status");
+                            }
+                            $msg='<font color="#009933">'.$result["errDesc"].'</font>';
+			}
+                        ?>
+                        <script>
+                        location.href='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['manage-subscriptions'])); ?>?msg=<?php echo(urlencode($msg)); ?>';
+                        </script>
+                        <?php
+                        die();
+                    }
+                        
 		}	
 	}
 	else if($_REQUEST["update_cc"])
@@ -290,6 +330,8 @@ wp_enqueue_script("jquery");
 	}
 	else
 	{
+            
+            
 	?>
 
 
@@ -334,29 +376,41 @@ wp_enqueue_script("jquery");
 			<?php echo substr($subscription->subscription_date,0,10); ?> / <?php echo substr($subscription->expires,0,10); ?><br>
 
 		<?php
-                if(trim($subscription->status)=='Discontinued' || $subscription->recurring!="1")
+                if(trim($subscription->status)=='Discontinued' || $subscription->recurring!="1" || !$ccinfo)
                 {
                     echo "<a href='?&subId=" . $subscription->sub_id ."&card_id=".$subscription->ccid."&renew=renew&confirmation_page=21'>Extend</a>&nbsp; | &nbsp;";
 		}                
 		if(trim($subscription->status)=='Active')
                 {
                     
-                    echo "<a href='?&change=" . $subscription->sub_id . "'>Change</a>&nbsp; | &nbsp;<a  onClick=\"dnaAskConfimation('Yes','No','Are you sure you want to Unsubscribe?','?&subId=" . $subscription->sub_id . "&status=Unsubscribed')\" href='#'>Unsubscribe</a>&nbsp; | &nbsp;<a onClick=\"dnaAskConfimation('Yes','No','Please confirm you want to Stop Auto-Billing.','?&subId=" . $subscription->sub_id . "&status=Discontinued')\"  href='#'>Stop Auto-Billing</a><br>";
+                    echo "<a href='?&change=" . $subscription->sub_id . "'>Change</a>&nbsp; | &nbsp;<a  onClick=\"dnaAskConfimation('Yes','No','Are you sure you want to Unsubscribe?','?&subId=" . $subscription->sub_id . "&status=Unsubscribed')\" href='#'>Unsubscribe</a>";
+                    if($subscription->recurring=="1")
+                    {
+                        if($subscription->rebilling=="1")
+                            echo("&nbsp; | &nbsp;<a onClick=\"dnaAskConfimation('Yes','No','Please confirm you want to Stop Auto-Billing.','?&subId=" . $subscription->sub_id . "&status=Discontinued')\"  href='#'>Stop Auto-Billing</a><br>");
+                        else
+                            echo("&nbsp; | &nbsp;<a   onClick=\"dnaAskConfimation('Yes','No','Please confirm you want to Start Auto-Billing.','?&subId=" . $subscription->sub_id . "&status=Active')\" href='#'>Start Auto-Billing</a><br>");
+                    }
 		}
                 else if($subscription->status=='Discontinued')
                 {
-                    echo "<a onClick=\"dnaAskConfimation('Yes','No','Are you sure you want to Unsubscribe?','?&subId=" . $subscription->sub_id . "&status=Unsubscribed')\" href='#'>Unsubscribe</a>&nbsp; | &nbsp;<a   onClick=\"dnaAskConfimation('Yes','No','Please confirm you want to Start Auto-Billing.','?&subId=" . $subscription->sub_id . "&status=Active')\" href='#'>Start Auto-Billing</a><br>";
+                    echo "<a onClick=\"dnaAskConfimation('Yes','No','Are you sure you want to Unsubscribe?','?&subId=" . $subscription->sub_id . "&status=Unsubscribed')\" href='#'>Unsubscribe</a>";
+                    if($subscription->recurring=="1")
+                        echo("&nbsp; | &nbsp;<a   onClick=\"dnaAskConfimation('Yes','No','Please confirm you want to Start Auto-Billing.','?&subId=" . $subscription->sub_id . "&status=Active')\" href='#'>Start Auto-Billing</a><br>");
 		}
 ?>
 			
 <? } ?>
 			</td>
 			</tr></table>
-
-<p>
-<small><b>Please note that UNSUBSCRIBE will immediately terminate your subscription.  Therefore, please only UNSUBSCRIBE if you have decided for sure to permanently cancel the service. If you would like to cancel your subscription at the expiration of the current billing period (allowing you to finish your current subscription term), please click on DISCONTINUE. When you do so, you can change your mind until the expiration date by clicking on REACTIVATE to restore your subscription.</b></small>
-</p>
-<?php
+<?php 
+    /*
+    ?>
+    <p>
+    <small><b>Please note that UNSUBSCRIBE will immediately terminate your subscription.  Therefore, please only UNSUBSCRIBE if you have decided for sure to permanently cancel the service. If you would like to cancel your subscription at the expiration of the current billing period (allowing you to finish your current subscription term), please click on DISCONTINUE. When you do so, you can change your mind until the expiration date by clicking on REACTIVATE to restore your subscription.</b></small>
+    </p>
+    <?php
+    */
 }
 
 //old subscribe
@@ -469,6 +523,7 @@ jQuery(document).ready(function () {
 </script>
 <div id="DNAFormFields">
 <form name='customSubscribeForm' action='' method='POST'>
+    <input type='hidden' name='SubscribeAPI' id="SubscribeAPI" value='Submit'>
     <table id="packagesList" cellpadding="3" width="100%">
         
         <input type='hidden' name='login_name' value='<?= $_SESSION['login_name']?>'>
@@ -574,8 +629,15 @@ jQuery(document).ready(function () {
 		$result=array();
 		include 'cc_info.php';
 		?>
+                <tr valign=top id="tr_no_auto_bill">
+                    <td nowrap>Disable Auto-Renewal: </td>
+                    <td>&nbsp;</td>
+                    <td >
+                        <input type="checkbox" name="stop_auto_bill" id="stop_auto_bill" value="1" <?php if($_REQUEST["stop_auto_bill"]=="1")echo("checked"); ?>> 
+                    </td>
+                </tr>        
 		<tr>
-           <td colspan="3"><input type='submit' name='Subscribe_API' id="Subscribe_API" value='Submit'>&nbsp;</td>
+           <td colspan="3"><h3 id="msgProgress" style="display:none">Processing your request, Please wait..</h3><input type='submit' name='Subscribe_API' onclick="this.style.display='none';document.getElementById('msgProgress').style.display='';" id="Subscribe_API" value='Submit'>&nbsp;</td>
         </tr>
     </table>
 </form>

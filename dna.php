@@ -110,11 +110,14 @@ function SubscriptionDNA_Initialize ( )
             else if($_REQUEST["dna_validate"]=="promo_code")
             {
 
+                $newcost=$_REQUEST["selected_package_cost"];
+                $newcostmsg="$".$_REQUEST["selected_package_cost"];
+                $payment_info_not_required=0;
                 $blocked_codes=array("blk1","blk2");  
                 if(!in_array($_REQUEST["promo_code"],$blocked_codes))
                 {
-                     list($service_id,$billing_routine)=split(";",$_REQUEST["packages"][0]);
-                     $data=array("promo_code"=>$_REQUEST["promo_code"],"services"=>$service_id,"billing_routine_id"=>$billing_routine);
+                    list($service_id,$billing_routine)=split(";",$_REQUEST["selected_package"]);
+                    $data=array("promo_code"=>$_REQUEST["promo_code"],"services"=>$service_id,"billing_routine_id"=>$billing_routine);
                      $promocode = SubscriptionDNA_ProcessRequest($data,"subscription/validate_promocode",true);
                      if($promocode["errCode"]<0)
                      {
@@ -123,13 +126,36 @@ function SubscriptionDNA_Initialize ( )
                      }
                      else
                      {
-                            if($promocode["discount_mod"]=="%")
-                                $msg='You save '.$promocode["discount"].$promocode["discount_mod"].'';
-                            elseif($promocode["discount_mod"]=="$")
-                                $msg='You save $'.$promocode["discount"].'';
-                            elseif($promocode["discount_mod"]=="b")
-                                $msg='Your code is valid. '.$promocode["billing"];
-                             $validCode="t";
+                        if($promocode["discount_mod"]=="%")
+                        {
+                            $msg='You save '.$promocode["discount"].$promocode["discount_mod"].'';
+                            $discount=$_REQUEST["selected_package_cost"]*($promocode["discount"]/100);
+                            $newcost=$_REQUEST["selected_package_cost"]-$discount;
+                            $newcost=number_format($newcost, 2);
+                            $discount=number_format($discount, 2);
+                            if($newcost<0)
+                                $newcost=0;
+                            $newcostmsg="<strike style='color:#b90000;'>$".$_REQUEST["selected_package_cost"]."</strike> - $".$discount." (".$promocode["discount"]."% discount) = $".$newcost;
+                        }
+                        elseif($promocode["discount_mod"]=="$")
+                        {
+                            $msg='You save $'.$promocode["discount"].'';
+                            $newcost=$_REQUEST["selected_package_cost"]-$promocode["discount"];
+                            if($newcost<0)
+                                $newcost=0;
+                            $promocode["discount"]=number_format($promocode["discount"], 2);
+                            $newcostmsg="<strike style='color:#b90000;'>$".$_REQUEST["selected_package_cost"]."</strike> - $".$promocode["discount"]." ($".$promocode["discount"]." discount) = $".$newcost;
+                        }
+                        elseif($promocode["discount_mod"]=="b")
+                        {
+                            $msg='<br>'.$promocode["billing"];
+                            $newcost=$promocode["first_period_cost"];
+                            $discount=$_REQUEST["selected_package_cost"]-$newcost;
+                            $discount=number_format($discount, 2);
+                            $newcostmsg="<strike style='color:#b90000;'>$".$_REQUEST["selected_package_cost"]."</strike> - $".$discount." ($".$discount." discount) = $".$newcost;
+                            $payment_info_not_required=$promocode["payment_info_not_required"];
+                        }
+                         $validCode="t";
                      }
 
                      if($validCode=="t")
@@ -145,6 +171,7 @@ function SubscriptionDNA_Initialize ( )
                 {
                      $msg=" Invalid discount code: ".$_REQUEST["promo_code"];
                 }
+                $msg=  json_encode(array("msg"=>$msg,"newcost"=>$newcost,"newcostmsg"=>$newcostmsg,"payment_info_not_required"=>$payment_info_not_required));
             }
             die($msg);
         }        
@@ -1126,6 +1153,12 @@ return TRUE ;
 /*
 Misc. Plugin Setup Code
 */
+
+function SubscriptionDNA_GetProvinces()
+{
+    $canada_provinces=array("Alberta"=>"AB","British Columbia"=>"BC","Manitoba"=>"MB","New Brunswick"=>"NB","Newfoundland and Labrador"=>"NL","Northwest Territories"=>"NT","Nova Scotia"=>"NS","Nunavut"=>"NU","Ontario"=>"ON","Prince Edward Island"=>"PE","Quebec"=>"QC","Saskatchewan"=>"SK","Yukon"=>"YT");
+    return($canada_provinces);
+}
 
 
 if ( function_exists ( 'add_action' ) )

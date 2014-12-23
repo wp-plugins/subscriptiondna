@@ -22,7 +22,7 @@ if($_POST["cmdLogin"])
 			if($result->errCode == 1)
 			{
 				$_SESSION['user_session_id'] = $result->user_session_id;
-				$_SESSION['login_name'] = $_POST['login_name'];
+				$_SESSION['login_name'] = $result->login_name;
 				$_SESSION['password'] = $_POST['password'];
 
 				SubscriptionDNA_Update_Subscription();

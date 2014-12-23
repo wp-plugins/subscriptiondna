@@ -1,11 +1,21 @@
 focused=0;
 function countryChanged(country) {
-    if(country=="223") {
-        document.getElementById('stateList').style.display='block';
+    if(country=="223") 
+    {
+        document.getElementById('stateList').style.display='';
         document.getElementById('state').style.display='none';
-    } else {
+        document.getElementById('stateListCa').style.display='none';
+    }
+    else if(country=="38")
+    {
         document.getElementById('stateList').style.display='none';
-        document.getElementById('state').style.display='block';
+        document.getElementById('stateListCa').style.display='';
+        document.getElementById('state').style.display='none';
+    }
+    else {
+        document.getElementById('stateList').style.display='none';
+        document.getElementById('stateListCa').style.display='none';
+        document.getElementById('state').style.display='';
         document.getElementById('state').value="";
     }
 }
@@ -221,8 +231,9 @@ function checkForm(f) {
     checkEmpty("password2","Please re-enter Password.");
     if(!xGetElementById("check_mo_1").checked && !xGetElementById("check_mo").checked)
         ValidateField(false,"check_mo","Please select payment method.");
-    
-    if(xGetElementById("check_mo_1").checked)
+    else
+        ValidateField(true,"check_mo","Please select payment method.");
+    if(xGetElementById("check_mo_1").checked && xGetElementById("payment_info_not_required").value!="1")
     {
         checkEmpty("cc_name","Please enter Name on Card.");
         checkEmpty("cc_type","Please select Card Type.");
@@ -235,6 +246,10 @@ function checkForm(f) {
     checkEmpty("country","Please select Country.");
     checkEmpty("address1","Please enter Address.");
     checkEmpty("city","Please enter City.");
+    if(document.getElementById('country').value=="223" && document.getElementById('stateList').value!="")
+    {
+        document.getElementById('state').value=document.getElementById('stateList').value;
+    }
     checkEmpty("state","Please select State.");
     checkEmpty("zipcode","Please enter Zip.");
     
@@ -249,5 +264,8 @@ function checkForm(f) {
         return(false);
     }
     else
-    return true;
+    {
+        xGetElementById("x_submit").disabled=true;
+        return true;
+    }
 }

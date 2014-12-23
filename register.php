@@ -1,4 +1,6 @@
 <?php
+$canada_provinces=SubscriptionDNA_GetProvinces();
+
 if(isset($_REQUEST["x_submit"]))
 {
     if(!isset($_REQUEST["cc_on_file"]))
@@ -16,7 +18,7 @@ if(isset($_REQUEST["x_submit"]))
             $custom_fields[substr($key,3)]= $val;
         }
     }
-    if($_REQUEST["check_mo"]=="1")
+    if($_REQUEST["check_mo"]=="1" || $_REQUEST["payment_info_not_required"]=="1")
         $_REQUEST["paid_by_credit_card"]="";
     else
         $_REQUEST["paid_by_credit_card"]="1";
@@ -87,6 +89,11 @@ if(isset($_REQUEST["x_submit"]))
 $packages = SubscriptionDNA_ProcessRequest("","list/packages");
 $customFields=SubscriptionDNA_ProcessRequest("","list/custom_fields");
 
+$categories=array();
+foreach($packages as $package)
+{
+    $categories[$package->category]=$package->category;
+}
 
 
 ?>
@@ -94,6 +101,16 @@ $customFields=SubscriptionDNA_ProcessRequest("","list/custom_fields");
 
 <script type="text/javascript">
 <!--
+function showPackage(c){
+        
+        for(i=0;i<<?php echo(count($categories)); ?>;i++)
+        {
+            jQuery("#divPackageType"+i).hide();
+        }
+        
+        jQuery( "#divPackageType"+c).slideDown( "slow" );
+
+}
 function paymentMethodChanged(method)
 {
     if(method=="1")
@@ -107,7 +124,7 @@ function paymentMethodChanged(method)
             jQuery("#paymentinfo"+i).show();
     }
 }
-function packageChanged(packob,package_id)
+function packageChanged(packob,package_id,payment_info_not_required)
 {
     jQuery("#selected_package").val(package_id);
     if(jQuery(packob).hasClass("package-box"))
@@ -122,8 +139,32 @@ function packageChanged(packob,package_id)
         jQuery(packob).removeClass('package-box');
         jQuery(packob).addClass("package-box-active")
     }
+    pcode=jQuery('#promo_code');
+    if(pcode.val()!="")
+    {
+        pcode.blur();
+    }
+    showHidePaymentInfo(payment_info_not_required);
 }
-
+function showHidePaymentInfo(payment_info_not_required)
+{
+    if(payment_info_not_required=="1")
+    {
+        for(i=2;i<=7;i++)
+            jQuery("#paymentinfo"+i).hide();
+    }
+    else
+    {
+        for(i=2;i<=7;i++)
+            jQuery("#paymentinfo"+i).show();
+    }
+    jQuery("#payment_info_not_required").val(payment_info_not_required);
+}
+function displayTotal(total)
+{
+    jQuery('#selected_package_cost').val(total);
+    document.getElementById('displayTaxInfo').innerHTML="$"+total;
+}
 jQuery(document).ready(function () {
     var validateUsername = jQuery('#login_name_lbl_error');
     jQuery('#login_name').blur(function () {
@@ -137,7 +178,7 @@ jQuery(document).ready(function () {
             validateUsername.removeClass('error').html('<img src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/images/loader.gif" height="16" width="16" />');
             this.timer = setTimeout(function () {
                 jQuery.ajax({
-                    url: '/?dna_validate=login_name',
+                    url: '<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/?dna_validate=login_name',
                     data: 'login_name=' + t.value,
                     dataType: 'html',
                     type: 'post',
@@ -170,7 +211,7 @@ jQuery(document).ready(function () {
             validateEmail.removeClass('error').html('<img src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/images/loader.gif" height="16" width="16" />');
             this.timer = setTimeout(function () {
                 jQuery.ajax({
-                    url: '/?dna_validate=email' ,
+                    url: '<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/?dna_validate=email' ,
                     data: 'email='+ t.value,
                     dataType: 'html',
                     type: 'post',
@@ -193,31 +234,41 @@ jQuery(document).ready(function () {
     });
 
     var validatePromo = jQuery('#promo_code_lbl_error');
-    jQuery('#promo_code').blur(function () {
-        var t = this; 
-        if (this.value != this.lastValue && this.value!="") {
-            if (this.timer) clearTimeout(this.timer);
-            validatePromo.removeClass('error').html('<img src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna//images/loader.gif" height="16" width="16" />');
-            this.timer = setTimeout(function () {
-                jQuery.ajax({
-                    url: '/?dna_validate=promo_code',
-                    data: 'promo_code=' + t.value,
-                    dataType: 'html',
-                    type: 'post',
-                    success: function (j) {
-                        validatePromo.html(j);
-                        hidePaymentInfo();
-                    }
-                });
-            }, 200);
-            this.lastValue = this.value;
-        }
-    });
-
+    if(selected_package=="")
+    {
+        validatePromo.html("Please select a package to validate promocode.");
+    }
+    else
+    {
+        jQuery('#promo_code').blur(function () {
+            var t = this; 
+                
+                var selected_package = jQuery('#selected_package').val();
+                var selected_package_cost = jQuery('#selected_package_cost').val();
+            
+                if (this.timer) clearTimeout(this.timer);
+                validatePromo.removeClass('error').html('<img src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna//images/loader.gif" height="16" width="16" />');
+                this.timer = setTimeout(function () {
+                    jQuery.ajax({
+                        url: '<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/?dna_validate=promo_code',
+                        data: 'promo_code=' + t.value+"&selected_package_cost="+selected_package_cost+"&selected_package="+selected_package,
+                        dataType: 'json',
+                        type: 'post',
+                        success: function (j) {
+                            validatePromo.html(j.msg);
+                            document.getElementById('displayTaxInfo').innerHTML=j.newcostmsg;
+                            showHidePaymentInfo(j.payment_info_not_required);
+                        }
+                    });
+                }, 200);
+                this.lastValue = this.value;
+            
+        });
+    }
 });
 //-->
 </script>  
-<script type="text/javascript" src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/dna.js"></script>
+<script type="text/javascript" src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/dna.js?cache=1"></script>
 
 <div align="center" id="DNAFormFields"> 
 <div style="color:#990000;">
@@ -228,6 +279,7 @@ jQuery(document).ready(function () {
 
 <form method="post" name="customSubscribeForm" action="" > 
             
+    <input type='hidden' name='payment_info_not_required' id="payment_info_not_required" value='<?php echo($_REQUEST["payment_info_not_required"]); ?>'>
     <input type='hidden' name='x_confirmurl' value='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['login'])); ?>'>
 
     <input type='hidden' name='email_validated' id="email_validated" value='<?php echo($_REQUEST["email_validated"]); ?>'>
@@ -240,31 +292,77 @@ jQuery(document).ready(function () {
 <p> 
 <table border="0" width="100%"> 
 <tr valign=top>
-    <td colspan="2"><h3>Subscription Plans:</h3></td>
+    <td colspan="2"><h3>Please select a subscription plan:</h3></td>
+</tr>
+<tr>
+    <td  colspan="2" style="border-bottom: 0px;background: none;">
+    <?php
+    $catcount=0;
+    $package_types=array();
+    foreach($categories as $category)
+    {
+        $package_types[$catcount]=array();
+        foreach($packages as $package)
+        {
+           if($package->category==$category)
+           {
+              $package_types[$catcount][]=$package;
+           }
+        }
+        
+        ?>
+       <div class="choice" onclick="showPackage(<?php echo($catcount); ?>);" style="float: left; margin-right: 15px;">
+        <a href="javascript:;"><?php echo($category); ?></a>
+
+        </div>
+        <?php
+        $catcount++;
+    }
+    ?>
+    
+    </td>
+</tr>
 <tr valign=top>            
-    <td colspan="2">
+    <td colspan="2" style="border-bottom: 0px;background: none;">
+            <div style="height: 8px;"></div>
             <?php 
             $count=0;
-            foreach($packages as $package)
+            foreach($package_types as $key=>$package_type)
             {
-                if(in_array($package->service_id.";".$package->billing_routine_id,$_POST["packages"]) || ($package->defaultval=="Yes" && !$selected))
+                $packages=$package_type;
+                ?>
+                <div id="divPackageType<?php echo($key); ?>"  style="<?php if($key!=1 || true)echo("display: none"); ?>">
+                <?php 
+                $count=0;
+                foreach($packages as $package)
                 {
-                    $selected=$package->uid;
-                    $selected_billing=$package->billing_routine_id;
-                    $selected_package=$package->service_id.";".$package->billing_routine_id;
+                    if(in_array($package->service_id.";".$package->billing_routine_id,$_POST["packages"]) || ($package->defaultval=="Yes" && !$selected))
+                    {
+                        $selected=$package->uid;
+                        $selected_billing=$package->billing_routine_id;
+                        $selected_package=$package->service_id.";".$package->billing_routine_id;
+                        $sel_payment_info_not_required=$package->payment_info_not_required;
+                        $sel_cost=$package->cost;
+                    }
+                    ?>
+                    <div title="Click to select your subscription plan."  id="innerDiv_<?php echo($package->uid); ?>"  class='package-box package-box-main' onclick='packageChanged(this,"<?php echo($package->service_id); ?>;<?php echo($package->billing_routine_id); ?>","<?php echo($package->payment_info_not_required); ?>");displayTotal("<?php echo($package->cost); ?>");'>
+                    <strong><?php echo($package->package_name);  ?></strong>
+                    <div ><?php echo($package->package_description); ?></div>
+                    </div>
+                    <?php 
+                    $count++;
                 }
                 ?>
-                <div title="Click to select your subscription plan."  id="innerDiv_<?php echo($package->uid); ?>"  class='package-box package-box-main' onclick='packageChanged(this,"<?php echo($package->service_id); ?>;<?php echo($package->billing_routine_id); ?>");'>
-                <strong><?php echo($package->package_name);  ?></strong>
-                <div ><?php echo($package->package_description); ?></div>
-                </div>
-                <?php 
-                $count++;
+            </div>
+            <?php
             }
             ?>
+            <br>                
         <span id="package_lbl_error" class="lblErr"></span>
         <input type="hidden" name="package" value="" id="package" />
         <input type="hidden" name="packages[]" id='selected_package' value="<?php echo($selected_package);  ?>" />
+        <input type='hidden' name='selected_package_cost' id="selected_package_cost" value='<?php echo($sel_cost); ?>'>
+        
     </td>
 </tr>
 
@@ -364,9 +462,16 @@ jQuery(document).ready(function () {
 <tr id='paymentinfo1'><td colspan="2"><br>
 <h3>Payment Information</h3></td></tr> 
 <tr> 
+<td style="vertical-align: top;" align="left" width='200'><b>Your Total Today:</b></td> 
+<td>
+    <b><div id='displayTaxInfo'><?php echo($sel_cost==""?"Please select a package.":"$".$sel_cost); ?></div></b><br />
+</td> 
+</tr> 
+
+<tr id='paymentinfo7'> 
 <td align="left" valign="top"><span id="check_mo_lbl" class="lbl">Payment Method</span></td> 
 <td>
-    <input type='radio' name='check_mo' id='check_mo_1' value='0' onclick='paymentMethodChanged("0");'>Credit Card <input type='radio' name='check_mo' id='check_mo' value='1' onclick='paymentMethodChanged("1");'> Check/Mo
+    <input type='radio' name='check_mo' id='check_mo_1' value='0' onclick='paymentMethodChanged("0");'> Credit Card &nbsp; <input type='radio' name='check_mo' id='check_mo' value='1' onclick='paymentMethodChanged("1");'> Check/Mo
     <br><span id="check_mo_lbl_error" class="lblErr"></span>
 </td> 
 </tr>
@@ -528,7 +633,19 @@ for($i=$year;$i<=$year+9;$i++)
 <option  value="WV">West Virginia</option> 
 <option  value="WY">Wyoming</option> 
 <option  value="XX">Other</option> 
-</select>  <input name="state" value="<?php echo($_REQUEST["state"]); ?>" style="display:none" size="30" type="text" id="state" />
+</select>  
+<input name="state" value="<?php echo($_REQUEST["state"]); ?>" style="display:none" size="30" type="text" id="state" />
+<select name="stateListCa" id="stateListCa" style="display:none" onchange="stateChanged(this.value);" >     
+<option value=""></option> 
+<?php
+foreach($canada_provinces as $key=>$province)
+{
+    ?>
+    <option value="<?php echo($province); ?>"><?php echo($key); ?></option> 
+    <?php
+}
+?> 
+</select>
 <br><span id="state_lbl_error" class="lblErr"></span>
 </td> 
 </tr> 
@@ -743,7 +860,7 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 <tr>
 <td></td>
 <td ><br><br> 
-<input TYPE="submit" name="x_submit" VALUE="Click here to submit form" onclick="return checkForm(this.form);"  style="font-size: 13pt;"></td>
+<input TYPE="submit" name="x_submit" id="x_submit" VALUE="Click here to submit form" onclick="return checkForm(this.form);"  style="font-size: 13pt;"></td>
 </tr>
 </table>
 </form> 
@@ -753,7 +870,7 @@ function validateSubscription()
     return(document.getElementById("selected_package").value);
 }
 if("<?php echo($selected_package); ?>"!="")
-packageChanged(document.getElementById("innerDiv_<?php echo($selected); ?>") ,"<?php echo($selected_package); ?>");
+packageChanged(document.getElementById("innerDiv_<?php echo($selected); ?>") ,"<?php echo($selected_package); ?>","<?php echo($sel_payment_info_not_required); ?>");
 </script>    
 <?php
 if($_POST)
