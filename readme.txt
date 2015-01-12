@@ -2,17 +2,19 @@
 Contributors: The development team at Subscription DNA&reg;
 Website: http://www.SubscriptionDNA.com/
 Plugin URL: http://www.SubscriptionDNA.com/wordpress/
-Tags: saas, invoice, enroll, paywall, registration, subscribe, ordering, signup, protect, subscription, member, membership, billing, payments, authentication, pay per view, premium content, credit card, login
+Tags: cloud billing, subscription, subscription billing, recurring billing, membership, member, paywall, saas, invoice, enroll, registration, subscribe, ordering, signup, protect, member, membership, billing, payments, authentication, pay per view, premium content, credit card, gateway, training, elearning
 Requires at least: 2.8
 Tested up to: 4.1
 Stable tag: trunk
 
 == Description ==
-Subscription DNA&reg; is an enterprise subscription billing and membership management platform.
-With DNA, you can easily manage your recurring revenue business with billing automation, robust reporting, communications tools, and much more.
-DNA quickly integrates with your site to allow subscription paywall signup, and protect premium content.
+Subscription DNA&reg; is an enterprise subscription billing and membership management platform. With DNA, you can easily manage your recurring revenue business with billing automation, robust reporting, communications tools, and much more. DNA quickly integrates with your site to allow subscription paywall or registration signup, customer self-serve accounting screens, and even protect premium content assets.  Subscription DNA pricing starts at just $99/m (+ setup) and we offer both a tiered rate and % per transaction arrangement.  Please visit http://www.SubscriptionDNA.com for more information and to contact us.
 
-As a benefit to Subscription DNA&reg; clients who use Wordpress, this free Wordpress plugin will help speed up integration and quickly ties in the basic subscriber functionality needed to run your membership site.
+As a benefit to Subscription DNA&reg; clients who use Wordpress, this Wordpress plugin can be enabled and will help speed up integration and quickly ties in the basic subscriber functionality needed to run your membership site. Our support team does provide hands on integration help and custom enhancements as needed.
+
+= Please Note: =
+This plugin ONLY works as an integration interface with an active/paid account to our full-featured SaaS cloud billing and membership management platform. At minimum, you will need a payment gateway supporting tokenization, and an SSL Certificate. We do support Paypal standard for payments, however, a payment gateway is ideal for utilizing the full power of Subscription DNA.
+
 For more information, including features, pricing and sandbox demonstrations, please contact us: http://www.SubscriptionDNA.com/contact/
 
 Plugin Features Include:
@@ -33,6 +35,7 @@ Plugin Features Include:
 * Create a member menu or use an optional widget based menu
 * Protect any Page / Post / Post Category access from unauthorized member access
 * Limit secure post summary length
+* The Subscription DNA administrative console is accessed outside of Wordpress.
 
 = Customize: =
 * Layout aesthetic or API connection customizations can be made to the code as needed
@@ -87,7 +90,7 @@ Yes. Our CRM tools allow you to completely manage the customer lifecycle as well
 Yes. We provide a built-in email manager that supports HTML and Plain Text emails. You can create and reuse templates for quick communications to target subscriber groups. 
 
 = What payment gateways do you support? =
-We support all the most popular payment gateways and can quickly tie in new gateways if necessary.
+We support all the most popular payment gateways using tokenization and can quickly tie in new gateways if necessary.
 
 = Does Subscription DNA&reg; support VAT or Tax schemes? =
 Yes. 
@@ -99,7 +102,7 @@ Subscription DNA is a sister company of successful small web development company
 With our small business approach, we are not looking for huge numbers of clients. We want to keep business simple, provide personal support, and build trust and confidence in the value of our business relationship. To run a successful subscription based website, you need the right subscription billing and membership tools and the right team. You need Subscription DNA&reg;.  Please contact us for references.
 
 == Screenshots ==
-For screenshots, please signup for a sandbox demonstration at http://www.SubscriptionDNA.com/contact/
+For full working demonstration, please signup for a sandbox demonstration at http://www.SubscriptionDNA.com/contact/
 
 == Changelog ==
 = 2.0 =
