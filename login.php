@@ -28,13 +28,13 @@ if($_POST["cmdLogin"])
 				SubscriptionDNA_Update_Subscription();
 				
                                 $profile = SubscriptionDNA_ProcessRequest(array("login_name"=>$_SESSION['login_name']),"user/profile");
-
                                 $_SESSION['first_name']=$profile->first_name;
                                 $_SESSION['last_name']=$profile->last_name;
 
                                 $_SESSION['is_groupowner']=$profile->is_groupowner;
                                 $_SESSION['is_groupmember']=$profile->is_groupmember;
-
+                                $_SESSION['group_id']=$profile->uid;
+                                
                                 $_SESSION['group_first_name']=$profile->group_first_name;
                                 $_SESSION['group_last_name']=$profile->group_last_name;
                                 $_SESSION['group_email']=$profile->group_email;

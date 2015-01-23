@@ -1,7 +1,7 @@
 <? 
-@session_start();
-include_once ('lib/common.php');
-include ('../header.php');
+
+
+
 		
 	if($_POST['send']){
                         $cf=array();

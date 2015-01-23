@@ -102,5 +102,25 @@ else
 
 <?php 
     }
+    if($_SESSION['is_groupowner']=="1")
+    {
+        echo("<hr>");
+        $members=SubscriptionDNA_ProcessRequest(array("login_name"=>$_SESSION['login_name']),"group/members_list",true);
+        $added_members=count($members);
+        if ($added_members < 1)
+        {
+            
+            $groups_link=get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['groups']);
+            ?>
+                    <div><a title="Add Members" href="<?php echo($groups_link); ?>?&save_mem_info=1" class="green-button" style="font-size: 20px; ">Click here to start adding your group members now!</a></div><br>
+            <?php
+        }
+        $signup_link=get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['subscribe'])."?sub_group=".$_SESSION['group_id'];
+        ?>
+        
+        Use this link to invite your group members to join your group.<br>
+        <a target="_blank" href="<?php echo($signup_link); ?>"><?php echo($signup_link); ?></a>
+        <?php
+    }
 ?>
 

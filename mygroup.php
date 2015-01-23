@@ -37,10 +37,18 @@ else
 
 	
 ?>
-	<div><a href='?&save_mem_info=1'>Add New Member</a></div><br>
+	
 <?php	
+        $signup_link=get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['subscribe'])."?sub_group=".$_SESSION['group_id'];
+        ?>
+        
+        <br>Use this link to invite your group members to join your group.<br>
+        <a target="_blank" href="<?php echo($signup_link); ?>"><?php echo($signup_link); ?></a>
+        <br>
+        <?php
+
 	if(count($members)<1){
-		echo '<font color="#FF0000">No Members Exist.</font>';
+		echo '<br><font color="#FF0000">No Members Exist.</font>';
 	}
 	else
 	{
@@ -48,10 +56,10 @@ else
         &nbsp;	
 <table id="dna-subscriptions" width="100%" cellpadding="3" cellspacing="0">
 			<tr>
-				<td colspan="7"><font color="#009933"><?=$_REQUEST['msg']; ?></font></td>
+				<td colspan="5"><font color="#009933"><?=$_REQUEST['msg']; ?></font></td><td colspan="2" align="right"><a href='?&save_mem_info=1'>Add New Member</a></div></td>
 			</tr>
 			<tr>	
-				<th>Login Name</th>				
+				<th>Login</th>				
 				<th>First Name</th>
 				<th>Last Name</th>
 				<th>Email</th>

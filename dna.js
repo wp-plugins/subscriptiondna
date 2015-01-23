@@ -203,7 +203,10 @@ function ValidateField(validated,fid,message) {
 }
  
 function checkForm(f) {
-    checkMembership(f);
+    
+    group_owner_id=xGetElementById("group_owner_id").value;
+    if(group_owner_id=="")
+        checkMembership(f);
     checkEmpty("first_name","Please enter First name.");
     checkEmpty("last_name","Please enter Last name.");
     if(checkEmpty("login_name","Please enter Login name."))
@@ -229,19 +232,22 @@ function checkForm(f) {
     if(checkEmpty("password","Please enter Password."))
         validatePasswords(f);
     checkEmpty("password2","Please re-enter Password.");
-    if(!xGetElementById("check_mo_1").checked && !xGetElementById("check_mo").checked)
-        ValidateField(false,"check_mo","Please select payment method.");
-    else
-        ValidateField(true,"check_mo","Please select payment method.");
-    if(xGetElementById("check_mo_1").checked && xGetElementById("payment_info_not_required").value!="1")
+    if(group_owner_id=="")
     {
-        checkEmpty("cc_name","Please enter Name on Card.");
-        checkEmpty("cc_type","Please select Card Type.");
-        if(checkEmpty("cc_number","Please enter Card Number."))
-        checkCreditCard(f);
-        checkEmpty("cc_exp_month","Expiry Month");
-        if(checkEmpty("cc_exp_year","Expiry Year"))
-        checkCreditCardExpiry(f);
+        if(!xGetElementById("check_mo_1").checked && !xGetElementById("check_mo").checked)
+            ValidateField(false,"check_mo","Please select payment method.");
+        else
+            ValidateField(true,"check_mo","Please select payment method.");
+        if(xGetElementById("check_mo_1").checked && xGetElementById("payment_info_not_required").value!="1")
+        {
+            checkEmpty("cc_name","Please enter Name on Card.");
+            checkEmpty("cc_type","Please select Card Type.");
+            if(checkEmpty("cc_number","Please enter Card Number."))
+            checkCreditCard(f);
+            checkEmpty("cc_exp_month","Expiry Month");
+            if(checkEmpty("cc_exp_year","Expiry Year"))
+            checkCreditCardExpiry(f);
+        }
     }
     checkEmpty("country","Please select Country.");
     checkEmpty("address1","Please enter Address.");
@@ -252,6 +258,15 @@ function checkForm(f) {
     }
     checkEmpty("state","Please select State.");
     checkEmpty("zipcode","Please enter Zip.");
+    
+    //extra fields
+    fields=document.getElementById('required_fields').value;
+    fields=fields.split(",");
+    for(count=0;count<fields.length;count++)
+    {
+        cf_field=document.getElementById(fields[count]);
+        checkEmpty(fields[count],cf_field.getAttribute("field")+" is required.");
+    }
     
     if(checkEmpty("phone","Please enter Phone."))
     validatePhones(f);
@@ -265,7 +280,9 @@ function checkForm(f) {
     }
     else
     {
-        xGetElementById("x_submit").disabled=true;
+        xGetElementById('msgProcessing').style.display='';
+        xGetElementById('x_submit').style.display='none';
+       
         return true;
     }
 }

@@ -1,29 +1,29 @@
 <?php
+if(isset($_GET["sub_group"]))
+{
+    $_SESSION["sub_group"]=$_REQUEST["sub_group"];
+    $data=array("group_id"=>$_SESSION["sub_group"]);
+    $result = SubscriptionDNA_ProcessRequest($data,"group/get_configuration",true);
+    if($result["errCode"]<0)
+    {
+        die("Invalid Group");
+    }
+}
+
 $canada_provinces=SubscriptionDNA_GetProvinces();
 
 if(isset($_REQUEST["x_submit"]))
 {
     if(!isset($_REQUEST["cc_on_file"]))
         $_REQUEST["card_id"]="";
-    $custom_fields=array();
-    foreach($_POST as $key => $val)
-    {
-        if(substr($key, 0, 3)  == "cf_")
-        {
-            if(is_array($val))
-            {
-                $val =implode(",", $val);
-            }
 
-            $custom_fields[substr($key,3)]= $val;
-        }
-    }
     if($_REQUEST["check_mo"]=="1" || $_REQUEST["payment_info_not_required"]=="1")
         $_REQUEST["paid_by_credit_card"]="";
     else
         $_REQUEST["paid_by_credit_card"]="1";
+    if($_REQUEST["group_owner_id"]=="")
+        list($service_id,$billing_routine_id)=explode(";",$_POST["packages"][0]);
     
-    list($service_id,$billing_routine_id)=explode(";",$_POST["packages"][0]);
     $data=array(
         "login_name"=>$_REQUEST["login_name"],
         "password"=>$_REQUEST["password"],
@@ -47,10 +47,10 @@ if(isset($_REQUEST["x_submit"]))
         "cc_exp_month"=>$_REQUEST["cc_exp_month"],
         "cc_exp_year"=>$_REQUEST["cc_exp_year"],
         "cc_cvv"=>$_REQUEST["cc_cvv"],
-        "custom_fields"=>$custom_fields,
+        "custom_fields"=>$_REQUEST["custom_fields"],
         "how_referred"=>$_REQUEST["how_referred"],
         "promo_code"=>$_REQUEST["promo_code"],
-        "group_owner_id"=>"",
+        "group_owner_id"=>$_REQUEST["group_owner_id"],
         "user_description"=>$_REQUEST["user_description"],     
         "auto_login_name"=>"",     
         "auto_password"=>"",     
@@ -88,7 +88,6 @@ if(isset($_REQUEST["x_submit"]))
 
 $packages = SubscriptionDNA_ProcessRequest("","list/packages");
 $customFields=SubscriptionDNA_ProcessRequest("","list/custom_fields");
-
 $categories=array();
 foreach($packages as $package)
 {
@@ -284,6 +283,7 @@ jQuery(document).ready(function () {
 
     <input type='hidden' name='email_validated' id="email_validated" value='<?php echo($_REQUEST["email_validated"]); ?>'>
     <input type='hidden' name='username_validated' id="username_validated" value='<?php echo($_REQUEST["username_validated"]); ?>'>
+    <input type='hidden' name='group_owner_id' id="group_owner_id" value='<?php echo($_SESSION["sub_group"]); ?>'>
  
     
     
@@ -291,6 +291,10 @@ jQuery(document).ready(function () {
 
 <p> 
 <table border="0" width="100%"> 
+<?php
+if($_SESSION["sub_group"]=="")
+{
+?>    
 <tr valign=top>
     <td colspan="2"><h3>Please select a subscription plan:</h3></td>
 </tr>
@@ -378,6 +382,9 @@ jQuery(document).ready(function () {
     <td></td>
     <td colspan="1"><span id="promo_code_lbl_error" class="lblErr"><?php echo($message); ?></span></td> 
 </tr> 
+<?php
+}
+?>
 <tr><td colspan="2"><h3>Member Information</h3></td></tr> 
  
 <tr> 
@@ -458,6 +465,10 @@ jQuery(document).ready(function () {
 </td> 
 </tr> 
 
+<?php
+if($_SESSION["sub_group"]=="")
+{
+?>    
  
 <tr id='paymentinfo1'><td colspan="2"><br>
 <h3>Payment Information</h3></td></tr> 
@@ -542,7 +553,9 @@ for($i=$year;$i<=$year+9;$i++)
 <td align="left" class="lbl" valign="top">CVC Code:</td> 
 <td><input type="text" name="cc_cvv" value="<?php echo($_REQUEST["cc_cvv"]); ?>" id="cc_cvv" size="5" maxlength="4" style="width: 50px;" value="" ></td> 
 </tr> 
-
+<?php 
+}
+?>
  
  
 <tr><td colspan="2"><br> 
@@ -686,23 +699,27 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //	Adding custom fields.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-					
+					$required_fields=array();
 					foreach($customFields as $customField)
 					{
 						$caption = $customField->caption;
 						$type = $customField->type;
 						$name = $customField->name;
+						$ac_name =substr($customField->name,3);
 						$default_value = $customField->default_value;
+						$required = $customField->required;
+                                                if($required=="1")
+                                                    $required_fields[]=$name;
 						$value = $_POST[$name];
 						if($name)
 						{
 							echo "<tr>
-								<td><input type='hidden' name='hd_custom_fields[]' value='".substr($name,3)."'/>
-								".$caption.":</td>";
+								<td>
+								".$caption.":</td><td>";
 								if($type == 'text')
 								{
 									$text_val = (empty($value)) ? $default_value : $value;
-									echo '<td><input type="text" name="'. $name .'" id="'. $name .'" value="'. htmlentities( $text_val ) .'"  size="30"></td>';
+									echo '<input type="text" name="custom_fields['. $ac_name .']" field="'.$caption.'" id="'. $name .'" value="'. htmlentities( $text_val ) .'"  size="30">';
 									//echo $out;
 								}
 								
@@ -712,7 +729,7 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 									{
 										$checkbox_list = explode("\n", $default_value);
 										$selected_value_list =$value;
-										echo("<td>");
+										echo("");
 										
 										for($j = 0; $j <count($checkbox_list); $j++)
 										{											
@@ -726,13 +743,13 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 												}	
 											}	
 												
-											echo "<input style='width: 15px' name='".$name."[]"."' type='".$type."' id='".$name."' ".$selected_val." type='".$type."' value='".$checkbox_list[$j]."' /> ".$checkbox_list[$j]." ";	
+											echo "<input style='width: 15px' name='custom_fields[".$ac_name."][]"."'  field='".$caption."'  type='".$type."' id='".$name."' ".$selected_val." value='".$checkbox_list[$j]."' /> ".$checkbox_list[$j]." ";	
 										}
-										echo("</td>");
+										echo("");
 									}
 									else
 									{
-										echo "<td><input style='width: 15px' name='".$name."[]"."' id='".$name."' type='".$type."' value='".$value."' /></td>";	
+										echo "<input style='width: 15px' name='custom_fields[".$ac_name."][]"."' field='".$caption."' id='".$name."' type='".$type."' value='".$value."' />";	
 									}
 									
 								}
@@ -742,7 +759,7 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 									if($default_value)
 									{
 										$radio_list = explode("\n", $default_value);
-										echo("<td>");
+										echo("");
 										for($j = 0; $j <count($radio_list); $j++)
 										{											
 											if($value == $radio_list[$j]) 
@@ -750,20 +767,20 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 											else
 												$sel = '';	
 												
-											echo "<input style='width: 15px' name='".$name."' type='".$type."' id='".$name."' ".$sel." type='".$type."' value='".$radio_list[$j]."' /> ".$radio_list[$j]."  ";	
+											echo "<input style='width: 15px' name='custom_fields[".$ac_name."]' field='".$caption."' type='".$type."' id='".$name."' ".$sel." type='".$type."' value='".$radio_list[$j]."' /> ".$radio_list[$j]."  ";	
 										}
-										echo("</td>");
+										echo("");
 									}
 									else
 									{
-										echo "<td><input style='width: 15px' name='".$name."' id='".$name."' type='".$type."' value='".$value."' /></td>";	
+										echo "<input style='width: 15px' name='custom_fields[".$ac_name."]' field='".$caption."' id='".$name."' type='".$type."' value='".$value."' />";	
 									}
 									
 								}
 								
 								if($type == 'textarea')
 								{
-									echo '<td><textarea name="'.$name.'" id="'.$name.'" >'.htmlentities($value).'</textarea></td>';
+									echo '<textarea name="custom_fields['.$ac_name.']" field="'.$caption.'"  id="'.$name.'" >'.htmlentities($value).'</textarea>';
 								}
 								
 								if($type == 'select')
@@ -772,7 +789,7 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 									{
 										$value_list = explode("\n", $default_value);
 										
-										echo "<td><select name='".$name."' id='".$name."'>";										
+										echo "<select name='custom_fields[".$ac_name."]' field='".$caption."' id='".$name."'>";										
 										for($j = 0; $j <count($value_list); $j++)
 										{											
 											if($value_list[$j]==$value)
@@ -780,7 +797,7 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 											else	
 												echo "<option value='".$value_list[$j]."'>".$value_list[$j]."</option>";
 										}
-										echo "</select></td>";
+										echo "</select>";
 									}									
 								}
 
@@ -791,7 +808,7 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 										$multiselect_list = explode("\n", $default_value);
 										$selected_value_list = explode(",", $value);
 
-										echo "<td><select name='".$name."[]' multiple id='".$name."'>";
+										echo "<select name='custom_fields[".$ac_name."][]' field='".$caption."' multiple id='".$name."'>";
 										
 										for($j = 0; $j <count($multiselect_list); $j++)
 										{
@@ -809,11 +826,11 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 											echo '<option '.$selected_val.' value="'.$multiselect_list[$j].'">'.$multiselect_list[$j].'</option>';
 										}
 										
-										echo "</select></td>";
+										echo "</select>";
 									}									
 								}
 									
-							echo "</tr>\n";								
+							echo "<br><span id='".$name."_lbl_error' class='lblErr'></span></td></tr>\n";								
 						}		
 					}
 
@@ -826,7 +843,7 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 }
 ?>
 
-
+<input type="hidden" name="required_fields" id="required_fields" value="<?php echo(implode(",", $required_fields)); ?>">
 
 <tr><td colspan="2"><br>
 <h3>Referred By</h3></td></tr> 
@@ -860,6 +877,7 @@ if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")
 <tr>
 <td></td>
 <td ><br><br> 
+<div id="msgProcessing" style="display:none"><h3>Processing your request please wait...</h3></div>    
 <input TYPE="submit" name="x_submit" id="x_submit" VALUE="Click here to submit form" onclick="return checkForm(this.form);"  style="font-size: 13pt;"></td>
 </tr>
 </table>
@@ -877,12 +895,12 @@ if($_POST)
 {
 	?>
 	<script>
+		document.getElementById("country").value="<?php echo($_REQUEST["country"]); ?>";
+		document.getElementById("stateList").value="<?php echo($_REQUEST["stateList"]); ?>";
 		document.getElementById("how_referred_list").value="<?php echo($_REQUEST["how_referred_list"]); ?>";
 		document.getElementById("cc_type").value="<?php echo($_REQUEST["cc_type"]); ?>";
 		document.getElementById("cc_exp_month").value="<?php echo($_REQUEST["cc_exp_month"]); ?>";
 		document.getElementById("cc_exp_year").value="<?php echo($_REQUEST["cc_exp_year"]); ?>";
-		document.getElementById("country").value="<?php echo($_REQUEST["country"]); ?>";
-		document.getElementById("stateList").value="<?php echo($_REQUEST["stateList"]); ?>";
 	</script>
 	
         <?php
