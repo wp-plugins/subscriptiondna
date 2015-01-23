@@ -106,10 +106,8 @@ For full working demonstration, please signup for a sandbox demonstration at htt
 
 == Changelog ==
 = 2.0 =
-<b>REST</b> api is now available in addition to original SOAP api.<br>
-password recovery reset option added.<br>
-members can now upgrade subscription.<br>
-wordpress pages can now be protected for individual services.<br>
+Full REST api is now available in addition to original SOAP api.<br>
+
 shortcodes introduced for all subscriptionDNA pages.<br>
 [subscriptiondna-login] SubscriptionDNA Login Page.<br>
 [subscriptiondna-subscribe] SubscriptionDNA Registration page.<br>
@@ -121,8 +119,9 @@ shortcodes introduced for all subscriptionDNA pages.<br>
 [subscriptiondna-payment-methods] SubscriptionDNA manage credit cards list.<br>
 [subscriptiondna-transactions] SubscriptionDNA transactions listing page.<br>
 [subscriptiondna-groups] SubscriptionDNA groups management page.<br>
-
 [subscriptiondna-gift] SubscriptionDNA gift subscription page.<br>
+enhanced promo code validation
+enhanced integration for group member signup options
 
 == Upgrade Notice ==
 = Currently no upgrades added for version 2.0 =
