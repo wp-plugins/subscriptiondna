@@ -120,8 +120,10 @@ shortcodes introduced for all subscriptionDNA pages.<br>
 [subscriptiondna-transactions] SubscriptionDNA transactions listing page.<br>
 [subscriptiondna-groups] SubscriptionDNA groups management page.<br>
 [subscriptiondna-gift] SubscriptionDNA gift subscription page.<br>
-enhanced promo code validation
-enhanced integration for group member signup options
+
+enhanced promo code validation.<br>
+enhanced integration for group member signup options.<br>
+support new features in DNA for auto-hiding payment fields and validation.<br>
 
 == Upgrade Notice ==
 = Currently no upgrades added for version 2.0 =

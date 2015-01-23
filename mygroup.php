@@ -54,7 +54,7 @@ else
 	{
 ?>
         &nbsp;	
-<table id="dna-subscriptions" width="100%" cellpadding="3" cellspacing="0">
+        <table id="dna-subscriptions" width="100%" cellpadding="3" cellspacing="0">
 			<tr>
 				<td colspan="5"><font color="#009933"><?=$_REQUEST['msg']; ?></font></td><td colspan="2" align="right"><a href='?&save_mem_info=1'>Add New Member</a></div></td>
 			</tr>
