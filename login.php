@@ -31,6 +31,7 @@ if($_POST["cmdLogin"])
                 $_SESSION['is_groupowner']=$profile->is_groupowner;
                 $_SESSION['is_groupmember']=$profile->is_groupmember;
                 $_SESSION['group_id']=$profile->uid;
+                $_SESSION['paid_by_owner']=$profile->paid_by_owner;
 
                 $_SESSION['group_first_name']=$profile->group_first_name;
                 $_SESSION['group_last_name']=$profile->group_last_name;
