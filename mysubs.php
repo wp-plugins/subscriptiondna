@@ -188,10 +188,10 @@ wp_enqueue_script("jquery");
                                             </tr>
                                             <tr valign=top id="trCheckInfo" style="display:none">
                                                 <td colspan="3">
-                                                Please make checks payable to:<br /><br />
-                                                <b>ICISF, Inc.</b><br />
-                                                3290 Pine Orchard Lane, Suite 106<br />
-                                                Ellicott City, MD 20142<br />
+                                               <b>Please make checks payable to:</b><br />
+                                               <b>My Company Name</b><br />
+                                               <b>123 Good Street</b><br />
+                                               <b>Cincinnati, OH 45248</b><br />
 
                                                 <br />
                                                 <small>*Checks/money orders must be in US funds & drawn from a US bank.<br />
@@ -589,10 +589,10 @@ jQuery(document).ready(function () {
         </tr>	
         <tr valign=top id="trCheckInfo" style="display:none">
             <td colspan="3">
-            Please make checks payable to:<br /><br />
-            <b>ICISF, Inc.</b><br />
-            3290 Pine Orchard Lane, Suite 106<br />
-            Ellicott City, MD 20142<br />
+            <b>Please make checks payable to:</b><br />
+            <b>My Company Name</b><br />
+            <b>123 Good Street</b><br />
+            <b>Cincinnati, OH 45248</b><br />
 
             <br />
             <small>*Checks/money orders must be in US funds & drawn from a US bank.<br />

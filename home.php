@@ -23,7 +23,7 @@ else
             
             // Messages for members
             
-            if($_SESSION['is_groupmember']=="1")
+            if($_SESSION['is_groupmember']=="1" && $_SESSION['paid_by_owner']=="1")
             {
                 if($subscription->status=="Active")
                 {

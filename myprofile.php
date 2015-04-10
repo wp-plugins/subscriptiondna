@@ -43,7 +43,7 @@
 			if($result->errCode<0){
 				$msg='<font color="#FF0000">'.$result->errDesc.'</font>';
 			}else{
-                                $_SESSION['login_name']=$_POST["new_login_name"];
+                                
 				$msg='<font color="#009933">'.$result->errDesc.'</font>';
 			}
                         

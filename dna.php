@@ -204,28 +204,64 @@ function SubscriptionDNA_Initialize ( )
  */ 
 function SubscriptionDNA_ProcessRequest($data,$url="user/register",$assoc=false)
 {
-    
-    $endpoint="https://".$GLOBALS['SubscriptionDNA']['Settings']["TLD"].".xsubscribe.com/dna-rest/".$url;
+    if($GLOBALS['SubscriptionDNA']['Settings']['offline']=="1")
+    {
+        switch ($url)
+        {
+            case "user/login":
+                $response='{
+                "errCode": "1",
+                "user_session_id": "e6vjcb8svfl86dc19mkh92sib6",
+                "login_name":"'.$data["login_name"].'"
+                }';
+                break;
+            case "subscription/check":
+                $response='
+                [
+                    {
+                    "service_id": "0fa23b22-7cb5-11e0-b9e9-001372fb8066",
+                    "status": "Active"
+                    }
+                ]';
+                break;
+            case "login/check":
+                $response='{
+                    "errCode": 60,
+                    "errDesc": "Logged in."
+                    }';
+                break;
+            default :
+                $response='{
+                "errCode": "-100",
+                "errDesc": "Data is temporarily unavailable."
+                }';
+                
+        }
         
-    $session = curl_init($endpoint);
-    $data=json_encode($data);
-    curl_setopt($session, CURLOPT_POST, true);
-    curl_setopt($session, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($session, CURLOPT_CUSTOMREQUEST, "POST");
-    curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-    $headers = array(
-        'Accept: application/json',
-        'Content-Type: application/json',
-        'apikey:'.$GLOBALS['SubscriptionDNA']['Settings']['API_KEY'],
-        'sessionid:'.@$_SESSION['user_session_id'],
-        'userip:'.$_SERVER["REMOTE_ADDR"]
-    );
-    curl_setopt($session, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
+    }
+    else
+    {
+        $endpoint="https://".$GLOBALS['SubscriptionDNA']['Settings']["TLD"].".xsubscribe.com/dna-rest/".$url;
 
-    $response = curl_exec($session);
-    curl_close($session);
-    //echo($response."<br><br><br>");
+        $session = curl_init($endpoint);
+        $data=json_encode($data);
+        curl_setopt($session, CURLOPT_POST, true);
+        curl_setopt($session, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($session, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
+        $headers = array(
+            'Accept: application/json',
+            'Content-Type: application/json',
+            'apikey:'.$GLOBALS['SubscriptionDNA']['Settings']['API_KEY'],
+            'sessionid:'.@$_SESSION['user_session_id'],
+            'userip:'.$_SERVER["REMOTE_ADDR"]
+        );
+        curl_setopt($session, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($session, CURLOPT_SSL_VERIFYPEER, false);
+
+        $response = curl_exec($session);
+        curl_close($session);
+    }
     $response = json_decode($response,$assoc);
     return($response);
     
@@ -632,7 +668,9 @@ function SubscriptionDNA_Update_Subscription()
  */ 
 function SubscriptionDNA_LoginCheck($result)
 {
-    if($result->errCode=="-61")
+    if(is_object($result))
+        $result=  get_object_vars ($result);
+    if($result["errCode"]=="-61")
     {
         $_SESSION['user_session_id'] = "";
         $_SESSION["login_name"] = "";
@@ -648,6 +686,10 @@ function SubscriptionDNA_LoginCheck($result)
         </script>
         <?php
         exit;
+    }
+    else if($result["errCode"]=="-100")
+    {
+        echo($result["errDesc"]);
     }
 }
 /**
@@ -978,7 +1020,7 @@ function SubscriptionDNA_Options_Edit ( )
 	
 	<br>
 	<div style="font-size:12px" align="center"> 
-		<a href="http://www.SubscriptionDNA.com" target="_blank"><img src="http://www.subscriptiondna.com/wordpress/logo.png" border="0"></a><br>
+		<a href="http://www.SubscriptionDNA.com" target="_blank"><img width="200" src="http://www.subscriptiondna.com/wp-content/uploads/2014/10/SubscriptionDNA-512.png" border="0"></a><br>
 		<br>
 		<a href="options-general.php?page=subscriptiondna/dna.php">View/Edit Settings</a>&nbsp;|   
 		<a href="options-general.php?page=subscriptiondna/dna.php&view_short=1">Short Codes</a>&nbsp;|   
@@ -1038,11 +1080,14 @@ function SubscriptionDNA_Options_Edit ( )
 		<h3 class='hndle'><span>Subscription DNA Basic Plugin Settings</span></h3>
 
 <div style="padding: 25px;">
-
+<p>
+<input type="checkbox" name="SubscriptionDNA_Settings[offline]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['offline']=="1") echo("checked") ; ?>  /><b>Work Offline:</b> 
+<br />
+(if checked login and subscription API will return true without communicating to SubscriptionDNA)
+</p><br>
 <b>DNA Account TLD:</b><br />
 <input type="text" name="SubscriptionDNA_Settings[TLD]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['TLD']) ; ?>" style="width:300px;" /><br />
 (ex: If your account URL is https://demo.xsubscribe.com, then "demo" is your TLD)
-
 
 <p>
 <b>API KEY:</b><br />

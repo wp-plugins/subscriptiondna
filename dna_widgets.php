@@ -37,7 +37,7 @@ class SubscriptionDNA_menu extends WP_Widget
         <li><a href="<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['my-profile'])); ?>"><?php echo get_the_title($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['my-profile']); ?></a></li>
         <li><a href="<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['change-password'])); ?>"><?php echo get_the_title($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['change-password']); ?></a></li>
         <?php
-        if($_SESSION['is_groupmember']!="1")
+        if($_SESSION['is_groupmember']!="1" || $_SESSION['paid_by_owner']!="1")
         {
         ?>
         <li><a href="<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['manage-subscriptions'])); ?>"><?php echo get_the_title($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['manage-subscriptions']); ?></a></li>

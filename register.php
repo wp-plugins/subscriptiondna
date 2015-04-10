@@ -11,6 +11,7 @@ if(isset($_GET["sub_group"]))
 }
 
 $canada_provinces=SubscriptionDNA_GetProvinces();
+$packages = SubscriptionDNA_ProcessRequest("","list/packages");
 
 if(isset($_REQUEST["x_submit"]))
 {
@@ -23,6 +24,14 @@ if(isset($_REQUEST["x_submit"]))
         $_REQUEST["paid_by_credit_card"]="1";
     if($_REQUEST["group_owner_id"]=="")
         list($service_id,$billing_routine_id)=explode(";",$_POST["packages"][0]);
+    $selected_package=new stdClass();
+    foreach($packages as $package)
+    {
+        if($package->service_id==$service_id && $package->billing_routine_id==$billing_routine_id)
+        {
+           $selected_package=$package;
+        }
+    }
     
     $data=array(
         "login_name"=>$_REQUEST["login_name"],
@@ -54,10 +63,10 @@ if(isset($_REQUEST["x_submit"]))
         "user_description"=>$_REQUEST["user_description"],     
         "auto_login_name"=>"",     
         "auto_password"=>"",     
-        "is_groupowner"=>"",     
-        "max_subscribers"=>"",     
-        "group_service"=>"",     
-        "group_billing"=>"",     
+        "is_groupowner"=>$selected_package->group_package,     
+        "max_subscribers"=>$selected_package->max_subscribers,     
+        "group_service"=>$selected_package->group_billing,     
+        "group_billing"=>$selected_package->group_service,     
         "send_welcome_email"=>"",     
         "setup_amount"=>"",     
         "check_mo"=>$_REQUEST["check_mo"],     
@@ -86,7 +95,6 @@ if(isset($_REQUEST["x_submit"]))
     }
 }
 
-$packages = SubscriptionDNA_ProcessRequest("","list/packages");
 $customFields=SubscriptionDNA_ProcessRequest("","list/custom_fields");
 $categories=array();
 foreach($packages as $package)
