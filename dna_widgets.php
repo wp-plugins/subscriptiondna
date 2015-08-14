@@ -118,7 +118,11 @@ class SubscriptionDNA_login extends WP_Widget
         {
             echo $before_title . $title . $after_title;
         }
-	include 'login.php';
+        $base_path=dirname(__FILE__);
+        if(file_exists($base_path."/custom/template/login.php"))
+             include($base_path."/custom/template/login.php");
+        else
+             include($base_path."/template/login.php");
         echo $after_widget;
     }
 

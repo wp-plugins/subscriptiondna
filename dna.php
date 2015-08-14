@@ -1,16 +1,16 @@
 <?php
-    /*
-        Plugin Name: SubscriptionDNA
-        Plugin URI: http://SubscriptionDNA.com/wordpress/
-        Description: Quickly integrate your website with your SubscriptionDNA Enterprise Subscription Billing and Members Management Platform account.
-        Version: 2.0
-        Author: SubscriptionDNA.com
-        Author URI: http://SubscriptionDNA.com/
-    */
+/*
+    Plugin Name: SubscriptionDNA
+    Plugin URI: http://SubscriptionDNA.com/wordpress/
+    Description: Quickly integrate your website with your SubscriptionDNA Enterprise Subscription Billing and Members Management Platform account.
+    Version: 2.0
+    Author: SubscriptionDNA.com
+    Author URI: http://SubscriptionDNA.com/
+*/
 
-    /*
-        Initialize
-    */
+/*
+    Initialize
+*/
 
 
 $lifetime=25920000;
@@ -22,7 +22,7 @@ if($device_id=="")
 setcookie("dna_device_id",$device_id,time()+$lifetime,"/");
 define("LIFETIME",360000);
 
-error_reporting(0);
+error_reporting(E_ALL ^ E_NOTICE);
 $GLOBALS['SubscriptionDNA'] = Array ( ) ;
 
 remove_filter('the_content', 'wpautop',1 );
@@ -32,11 +32,12 @@ include("dna_widgets.php");
 /**
  * Initializes global variables used in plugin like DNA Front-End pages list,TLD, and api key
  *
- */ 
+ */
 function SubscriptionDNA_Initialize ( )
 {
+        //include("type_flipbooks.php");    
 	$GLOBALS['SubscriptionDNA']['DPages']=array();
-        
+
         $GLOBALS['SubscriptionDNA']['DPages'][]=array("name"=>"subscribe","title"=>"Subscribe","order"=>"1",'p'=>"");
         $GLOBALS['SubscriptionDNA']['DPages'][]=array("name"=>"login","title"=>"Login","order"=>"2",'p'=>"");
         $GLOBALS['SubscriptionDNA']['DPages'][]=array("name"=>"forgot-password","title"=>"Forgot Password","order"=>"3",'p'=>"login");
@@ -49,7 +50,7 @@ function SubscriptionDNA_Initialize ( )
         $GLOBALS['SubscriptionDNA']['DPages'][]=array("name"=>"gift","title"=>"Gift","order"=>"10",'p'=>"");
         $GLOBALS['SubscriptionDNA']['DPages'][]=array("name"=>"groups","title"=>"My Group","order"=>"11",'p'=>"members");
         
-        $GLOBALS['SubscriptionDNA']['Settings'] = SubscriptionDNA_Get_Settings () ;
+        $GLOBALS['SubscriptionDNA']['Settings']= SubscriptionDNA_Get_Settings () ;
         $siteurl=get_option("siteurl");
         if($_SERVER["SERVER_PORT"]=="443")
         {
@@ -77,17 +78,17 @@ function SubscriptionDNA_Initialize ( )
                 }
             }
         }
-       
+
 	$GLOBALS['SubscriptionDNA']['WSDL_URL']="http://".$GLOBALS['SubscriptionDNA']['Settings']["TLD"].".xsubscribe.com/soap/soapbridge/wsdl";
 
         if(isset($_REQUEST["dna_validate"]))
         {
 
-            if($_REQUEST["dna_validate"]=="login_name")      
+            if($_REQUEST["dna_validate"]=="login_name")
             {
                 $login_name = $_REQUEST['login_name'];
                 $result=SubscriptionDNA_ProcessRequest(array("login_name"=>$login_name),"user/loginname_availability",true);
-               
+
                 if ($result['errCode'] != 4)
                 {
                     $msg = '<div class="lblErr">' . $result['errDesc'] . '</div>';
@@ -97,7 +98,7 @@ function SubscriptionDNA_Initialize ( )
                     $msg = '<div style="color:green">' . $result['errDesc'] . '</div>';
                 }
             }
-            else if($_REQUEST["dna_validate"]=="email") 
+            else if($_REQUEST["dna_validate"]=="email")
             {
                 $email = $_REQUEST['email'];
                 $result=SubscriptionDNA_ProcessRequest(array("email"=>$email),"user/email_availability",true);
@@ -113,7 +114,7 @@ function SubscriptionDNA_Initialize ( )
                 $newcost=$_REQUEST["selected_package_cost"];
                 $newcostmsg="$".$_REQUEST["selected_package_cost"];
                 $payment_info_not_required=0;
-                $blocked_codes=array("blk1","blk2");  
+                $blocked_codes=array("blk1","blk2");
                 if(!in_array($_REQUEST["promo_code"],$blocked_codes))
                 {
                     list($service_id,$billing_routine)=split(";",$_REQUEST["selected_package"]);
@@ -148,7 +149,7 @@ function SubscriptionDNA_Initialize ( )
                         }
                         elseif($promocode["discount_mod"]=="b")
                         {
-                            $msg='<br>'.$promocode["billing"];
+                            $msg=$promocode["billing"];
                             $newcost=$promocode["first_period_cost"];
                             $discount=$_REQUEST["selected_package_cost"]-$newcost;
                             $discount=number_format($discount, 2);
@@ -159,14 +160,14 @@ function SubscriptionDNA_Initialize ( )
                      }
 
                      if($validCode=="t")
-                     {		
+                     {
                         $msg="<span class='dna-success' style='color:green' >Discount Code Validated: ".$_REQUEST["promo_code"] ." - ".$msg."</span>";
                      }
                      else if($_REQUEST["promo_code"]!="")
                      {
                         $msg="Sorry, you've entered an invalid discount code: ".$_REQUEST["promo_code"];
                      }
-                }     
+                }
                 else
                 {
                      $msg=" Invalid discount code: ".$_REQUEST["promo_code"];
@@ -174,34 +175,76 @@ function SubscriptionDNA_Initialize ( )
                 $msg=  json_encode(array("msg"=>$msg,"newcost"=>$newcost,"newcostmsg"=>$newcostmsg,"payment_info_not_required"=>$payment_info_not_required));
             }
             die($msg);
-        }        
-        
+        }
+
         if($_REQUEST["DNA_Services"]=="1")
         {
             $serviceArray = SubscriptionDNA_ProcessRequest("","list/services",true);
             if($serviceArray["errCode"]=="-51")
             {
-                $data=array(); 
+                $data=array();
                 $data[0]=array("sId"=>"0","service_name"=>$serviceArray["errDesc"]);
             }
             else
             {
                $data=$serviceArray;
             }
-            
+
             die(json_encode($data));
+        }
+
+        $current_page_id=url_to_postid($_SERVER["REQUEST_URI"]);  
+        if($current_page_id>0 && in_array($current_page_id, $GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]))
+        {
+            SubscriptionDNA_GetFiles($current_page_id,"code");
+        }
+        else if(isset($_POST["dna_action_page"]))
+        {
+            include("code/".$_POST["dna_action_page"].".php");
         }
 	return TRUE ;
 }
 
-
-
+function SubscriptionDNA_GetFiles($current_page_id,$f_type="code")
+{
+    $dna_pages=$GLOBALS['SubscriptionDNA']['Settings']["dna_pages"];
+    $page_vs_filename=array(
+        $dna_pages["subscribe"]=>"register",
+        $dna_pages["login"]=>"login",
+        $dna_pages["forgot-password"]=>"forgot_pass",
+        $dna_pages["members"]=>"home",
+        $dna_pages["my-profile"]=>"myprofile",
+        $dna_pages["change-password"]=>"mypass",
+        $dna_pages["manage-subscriptions"]=>"mysubs",
+        $dna_pages["payment-methods"]=>"mycards",
+        $dna_pages["transactions"]=>"mytxns",
+        $dna_pages["gift"]=>"gift",
+        $dna_pages["groups"]=>"mygroup",
+   );
+   $file_name=$page_vs_filename[$current_page_id];
+   if($file_name!="")
+   {
+        $base_path=dirname(__FILE__);
+        if(file_exists($base_path."/custom/".$f_type."/".$file_name.".php"))
+            include($base_path."/custom/".$f_type."/".$file_name.".php");
+        else
+            include($base_path."/".$f_type."/".$file_name.".php");
+   }
+}
+function SubscriptionDNA_LoginValidate()
+{
+    if($_SESSION['login_name']=="")
+    {
+        wp_redirect(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['login'])."?redirect_to=".$current_page_id);
+        die();
+    }
+}
 
 
 /**
  * Creates soap style xml using array of parameters
  *
- */ 
+ */
 function SubscriptionDNA_ProcessRequest($data,$url="user/register",$assoc=false)
 {
     if($GLOBALS['SubscriptionDNA']['Settings']['offline']=="1")
@@ -235,13 +278,18 @@ function SubscriptionDNA_ProcessRequest($data,$url="user/register",$assoc=false)
                 "errCode": "-100",
                 "errDesc": "Data is temporarily unavailable."
                 }';
-                
+
         }
-        
+
     }
     else
     {
-        $endpoint="https://".$GLOBALS['SubscriptionDNA']['Settings']["TLD"].".xsubscribe.com/dna-rest/".$url;
+        if($_SERVER['HTTP_HOST']=="localetech.com")
+            $apihost="lahore";
+        else    
+            $apihost="xsubscribe";
+
+        $endpoint="https://".$GLOBALS['SubscriptionDNA']['Settings']["TLD"].".".$apihost.".com/dna-rest/".$url;
 
         $session = curl_init($endpoint);
         $data=json_encode($data);
@@ -264,12 +312,12 @@ function SubscriptionDNA_ProcessRequest($data,$url="user/register",$assoc=false)
     }
     $response = json_decode($response,$assoc);
     return($response);
-    
+
 }
 /**
  * returns DNA settings from wordpress db like page menu,TLD and API Key
  *
- */ 
+ */
 function SubscriptionDNA_Get_Settings()
 {
 
@@ -278,12 +326,12 @@ function SubscriptionDNA_Get_Settings()
         if(isset($_POST["btnCreatePages"]))
         {
             $dna_pages=array();
-            
+
             foreach ($GLOBALS['SubscriptionDNA']['DPages'] as $page)
             {
                 $ID=SubscriptionDNA_CreatePage($page);
                 $dna_pages[$page["name"]]=$ID;
-                
+
                 $dna_options=array("menu"=>"1","login"=>"1");
                 if($page["name"]=="subscribe" || $page["name"]=="login" || $page["name"]=="forgot-password" || $page["name"]=="gift")
                 {
@@ -291,11 +339,11 @@ function SubscriptionDNA_Get_Settings()
                     $dna_options["login"]="";
                 }
                 update_post_meta($ID, "_SubscriptionDNA", $dna_options);
-            }   
+            }
             update_option ('SubscriptionDNA_Settings_DNAPages', $dna_pages);
             $Settings["dna_pages"]=$dna_pages;
         }
-	
+
 	return $Settings ;
 
 }
@@ -308,17 +356,17 @@ function SubscriptionDNA_Get_Settings()
 /**
  * Used to authenticate pages and posts using dna subscribed services and settings
  *
- */ 
+ */
 function SubscriptionDNA_Get_Page_Content($Content)
 {
 	global $wpdb;
-	
+
         $dna_options=get_post_meta($GLOBALS['post']->ID, "_SubscriptionDNA",true);
         if(is_page())
         {
-            $memberpage=$dna_options["login"];
-            $menu=$dna_options["menu"];
-            if($dna_options["sub"]=="1")
+            $memberpage=@$dna_options["login"];
+            $menu=@$dna_options["menu"];
+            if(@$dna_options["sub"]=="1")
                 $memberpage="1";
         }
         else
@@ -375,7 +423,7 @@ function SubscriptionDNA_Get_Page_Content($Content)
 		}
 
 	}
-	if(is_page() && $GLOBALS['post']->post_type=="page" && $dna_options["sub"]=="1")
+	if(is_page() && $GLOBALS['post']->post_type=="page" && @$dna_options["sub"]=="1")
 	{
 		$allowed=true;
                 $services=$dna_options["services"];
@@ -409,7 +457,7 @@ function SubscriptionDNA_Get_Page_Content($Content)
 			exit;
 		}
 	}
-	
+
 	if(!is_single() and $GLOBALS['post']->post_type=="post")
 	{
 		if($GLOBALS['SubscriptionDNA']['Settings']['Limit']>0)
@@ -436,11 +484,11 @@ function SubscriptionDNA_Get_Page_Content($Content)
 					$allowed=false;
 				}
 				if(!$allowed)
-				$Content=SubscriptionDNA_limit_text($Content,$GLOBALS['SubscriptionDNA']['Settings']['Limit']);	
+				$Content=SubscriptionDNA_limit_text($Content,$GLOBALS['SubscriptionDNA']['Settings']['Limit']);
 			}
 			else
 			{
-				$Content=SubscriptionDNA_limit_text($Content,$GLOBALS['SubscriptionDNA']['Settings']['Limit']);	
+				$Content=SubscriptionDNA_limit_text($Content,$GLOBALS['SubscriptionDNA']['Settings']['Limit']);
 			}
 		}
 	}
@@ -452,7 +500,7 @@ function SubscriptionDNA_Get_Page_Content($Content)
 /**
  * overwrides wordpres's the_time filter to display "member only" text for protected posts
  *
- */ 
+ */
 function SubscriptionDNA_Get_Time ( $Content )
 {
 	if($GLOBALS['SubscriptionDNA']['Settings']['MemOnly']=="1")
@@ -462,13 +510,13 @@ function SubscriptionDNA_Get_Time ( $Content )
 		if($memberpage or in_category($restrictedCats))
 		return($Content." | Member Only");
 	}
-	return($Content);	
+	return($Content);
 }
 
 /**
  * adds missing tags to the trimmed data , used to display limited text on posts
  *
- */ 
+ */
 function SubscriptionDNA_closetags ( $html )
 {
     #put all opened tags into an array
@@ -503,13 +551,13 @@ function SubscriptionDNA_closetags ( $html )
 /**
  * used to limit text on posts
  *
- */ 
-function SubscriptionDNA_limit_text($text, $limit) 
+ */
+function SubscriptionDNA_limit_text($text, $limit)
 {
 	$text_in = strip_tags($text);
 	$words = str_word_count($text_in, 2);
 	$pos = array_keys($words);
-	if(count($words) > $limit) 
+	if(count($words) > $limit)
 	{
 			$one=$words[$pos[$limit-3]];
 			$two=$words[$pos[$limit-2]];
@@ -517,13 +565,13 @@ function SubscriptionDNA_limit_text($text, $limit)
 			$p=strpos($text,$one,$pos[$limit-3]);
 			$p=strpos($text,$two,$p);
 			$p=strpos($text,$three,$p)+strlen($three);
-			
+
 		if($_SESSION['login_name']!="")
 		{
 			if(!in_category($_SESSION['subscribed_categories']))
 			{
 				$text = SubscriptionDNA_closetags(substr($text, 0, $p)."..."). ' <a href="'.get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['manage-subscriptions']).'?&redirect_to='.$GLOBALS['post']->ID.'">Subscribe to Read More...</a><br><br>';
-			}	
+			}
 		}
 		else
 		{
@@ -537,7 +585,7 @@ function SubscriptionDNA_limit_text($text, $limit)
 			if(!in_category($_SESSION['subscribed_categories']))
 			{
 				$text = $text."...".' <a href="'.get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['manage-subscriptions']).'?&redirect_to='.$GLOBALS['post']->ID.'">Subscribe to Read More...</a><br><br>';
-			}	
+			}
 		}
 		else
 		{
@@ -550,18 +598,27 @@ function SubscriptionDNA_limit_text($text, $limit)
 /**
  * displays a php file using short codes
  *
- */ 
+ */
 function SubscriptionDNA_ShortCode_Page($file_name,$page_name)
 {
     ob_start();
     $page_id=$GLOBALS['SubscriptionDNA']['Settings']["dna_pages"][$page_name];
     $dna_options=get_post_meta($page_id, "_SubscriptionDNA",true);
+   $base_path=dirname(__FILE__);
+    
     if($dna_options["menu"]=="1")
-        include("menu.php");
-    ?>
-	<link rel='stylesheet' href='<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/styles.css' type='text/css'/>
-    <?php
-    include($file_name.".php");
+    {
+        if(file_exists($base_path."/custom/template/menu.php"))
+             include($base_path."/custom/template/menu.php");
+        else
+             include($base_path."/template/menu.php");
+    }
+    
+   if(file_exists($base_path."/custom/template/".$file_name.".php"))
+        include($base_path."/custom/template/".$file_name.".php");
+   else
+        include($base_path."/template/".$file_name.".php");
+
     $contents=  ob_get_contents();
     ob_end_clean();
     return($contents);
@@ -620,13 +677,13 @@ function SubscriptionDNA_Groups($args="")
 /**
  * gets list of subscriptions for currently logged in user and saves it into session
  *
- */ 
+ */
 function SubscriptionDNA_Update_Subscription()
 {
 	$categories = get_categories("hide_empty=0");
 	$services=array();
 	$servicesToCategories=array();
-	foreach($categories as $key=>$Term) 
+	foreach($categories as $key=>$Term)
 	{
 		$service_ids=get_option('SubscriptionDNA_-_Settings_-_Cat'.$Term->cat_ID);
 		if(is_array($service_ids))
@@ -640,7 +697,7 @@ function SubscriptionDNA_Update_Subscription()
 				if(!in_array($Term->cat_ID,$servicesToCategories[$service_id]))
 				$servicesToCategories[$service_id][]=$Term->cat_ID;
 			}
-		}	
+		}
 	}
 	$serviceArray=array();
 	$serviceArray = SubscriptionDNA_ProcessRequest(array("login_name"=>$_SESSION['login_name']),"subscription/check");
@@ -665,7 +722,7 @@ function SubscriptionDNA_Update_Subscription()
 /**
  * this function verifies if user's session is still valid on DNA side, and if not valid it redirects user to login page
  *
- */ 
+ */
 function SubscriptionDNA_LoginCheck($result)
 {
     if(is_object($result))
@@ -682,7 +739,7 @@ function SubscriptionDNA_LoginCheck($result)
         unset($_SESSION["subscription"]);
         ?>
         <script>
-        location.href='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['login'])); ?>';					
+        location.href='<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['login'])); ?>';
         </script>
         <?php
         exit;
@@ -695,13 +752,43 @@ function SubscriptionDNA_LoginCheck($result)
 /**
  * Overwrides wp's header filter to display any common css
  *
- */ 
+ */
 function SubscriptionDNA_wp_head ( )
 {
 
+    $css_file="/template/styles.css";
+    if(file_exists(dirname(__FILE__)."/custom/template/styles.css"))
+        $css_file="/custom/template/styles.css";
+            
 ?>
-	<link rel='stylesheet' href='<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/styles.css' type='text/css'/>
-    <?php
+        <link rel="stylesheet" href='<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/css/bootstrap.min.css' /> <!-- minified Bootstrap  -->
+	<link rel='stylesheet' href='<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna<?php echo($css_file); ?>' type='text/css'/>
+        <?php
+        if($GLOBALS['SubscriptionDNA']['Settings']['hidelinks']!="1")
+        {
+        ?>
+        <div id="headerSection">      
+            <div id="headerNav">
+                <div id="topNav">
+                    <ul>
+                        <?php
+                        if($_SESSION['login_name']!="")
+                        {
+                        ?>
+                        <li>Welcome, <?php echo(stripcslashes($_SESSION['first_name'])); ?>!</li>
+                        <li><div class="tnDiv">|</div></li>
+                        <?php
+                        }
+                        ?>
+                        <li><?php if($_SESSION['login_name']!=""){ ?><a href="<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['login'])); ?>?&action=logout">Logout</a><?php }else{ ?><a href="<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['login'])); ?>">Login</a><?php } ?></li>
+                        <li><div class="tnDiv">|</div></li>
+                        <li><a href="<?php echo(get_permalink($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]['members'])); ?>">My Account</a></li>
+                    </ul>
+                </div>
+            </div>   
+        </div>  
+        <?php
+        }
         if($_SESSION['login_name']!="")
         {
             ?>
@@ -709,7 +796,7 @@ function SubscriptionDNA_wp_head ( )
             #menu-item-125 {
             display: none;
             }
-            <?php 
+            <?php
             if($_SESSION['is_groupowner']!="1")
             {
                 ?>
@@ -738,9 +825,15 @@ function SubscriptionDNA_wp_head ( )
 /**
  * Overwrides wp's footer filter to display any common footer code
  *
- */ 
+ */
 function SubscriptionDNA_wp_footer ( )
-{}
+{
+    ?>
+    
+    <!-- Latest compiled and minified Bootstrap JavaScript -->
+    <script src="<?php echo($GLOBALS['SubscriptionDNA']["siteurl"]); ?>/wp-content/plugins/subscriptiondna/js/bootstrap.min.js"></script>
+<?php
+}
 
 
 
@@ -749,14 +842,14 @@ function SubscriptionDNA_wp_footer ( )
 /**
  * Overwrides wp's admin initialize function to dna meta boxes in pages/posts sidebars
  *
- */ 
+ */
 function SubscriptionDNA_Admin_Initialize() {
 	global $wp_version;
 	add_meta_box('SubscriptionDNA_admin_meta_box','SubscriptionDNA Options', 'SubscriptionDNA_admin_sidebar', 'page', 'side', 'high');
 	add_action('save_post', 'SubscriptionDNA_admin_sidebar_save');
 	add_action ('edit_category_form', 'SubscriptionDNA_admin_category_add');
-	
-		
+
+
 	if($_REQUEST["post_id"]!="")
 	{
 		//die($_REQUEST["status"]);
@@ -775,9 +868,9 @@ function SubscriptionDNA_Admin_Initialize() {
 				{
 					if($val==$_REQUEST["cat_id"])
 					unset($cats[$key]);
-				}	
-			}	
-			
+				}
+			}
+
 		}
 		else
 		{
@@ -785,8 +878,8 @@ function SubscriptionDNA_Admin_Initialize() {
 			$cats[]=$_REQUEST["cat_id"];
 		}
 		update_option("SubscriptionDNA_cats",$cats);
-		
-		
+
+
 		wp_redirect("options-general.php?page=subscriptiondna/dna.php&manage_cats=1");
 	}
 }
@@ -794,7 +887,7 @@ function SubscriptionDNA_Admin_Initialize() {
 /**
  *  Displays SubscriptionDNA modify category access link on add/edit categories page
  *
- */ 
+ */
 function SubscriptionDNA_admin_category_add()
 {
 	?>
@@ -805,7 +898,7 @@ function SubscriptionDNA_admin_category_add()
 /**
  *  DNA's admin sidebar to display page access options
  *
- */ 
+ */
 function SubscriptionDNA_admin_sidebar($post)
 {
         $dna_secure_pages=array($GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]["members"],$GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]["my-profile"],$GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]["change-password"],$GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]["manage-subscriptions"],$GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]["payment-methods"],$GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]["transactions"],$GLOBALS['SubscriptionDNA']['Settings']["dna_pages"]["groups"]);
@@ -841,7 +934,7 @@ function SubscriptionDNA_admin_sidebar($post)
                 {
                    $data=$serviceArray;
                 }
-                
+
             }
             ?>
             <div class="wrap">
@@ -906,7 +999,7 @@ function SubscriptionDNA_admin_sidebar($post)
                         }).done(function( msg ) {
                             data = jQuery.parseJSON(msg);
                             services='<input type="checkbox" name="_SubscriptionDNA[services][]" value="all" style="margin-left:-20px;">All Services<br />';
-                            jQuery.each( data, function( key, val ) 
+                            jQuery.each( data, function( key, val )
                             {
                                 services+='<input type="checkbox"  name="_SubscriptionDNA[services][]" value="'+val.sId+'" style="margin-left:-20px;">'+val.service_name+"<br />";
                             });
@@ -929,7 +1022,7 @@ function SubscriptionDNA_admin_sidebar($post)
 /**
  *  Saves DNA sidebar settings for pages/posts
  *
- */ 
+ */
 function SubscriptionDNA_admin_sidebar_save($post_id)
 {
 	if(@$_REQUEST["SubscriptionDNA_form"]=="1")
@@ -941,12 +1034,14 @@ function SubscriptionDNA_admin_sidebar_save($post_id)
 /**
  *  Display SubscriptionDNA link in wp menu
  *
- */ 
+ */
 function SubscriptionDNA_admin_menu ( )
 {
 
-	$Aarzi = add_options_page ( 'SubscriptionDNA' , 'SubscriptionDNA' , 10 , 'subscriptiondna/dna.php' , 'SubscriptionDNA_Options_Edit' ) ;
-	return TRUE ;
+    add_menu_page( 'SubscriptionDNA', 'SubscriptionDNA', 0, __FILE__,'SubscriptionDNA_Options_Edit');
+    add_submenu_page(__FILE__,__('Settings','SubscriptionDNA'),__('Configuration','SubscriptionDNA'), 10, __FILE__,'SubscriptionDNA_Options_Edit');
+    //add_submenu_page(__FILE__,__("FlipBook",'SubscriptionDNA'),__("Manage FlipBooks",'SubscriptionDNA'),10,"edit.php?post_type=dna-flipbooks");
+    return TRUE ;
 
 }
 
@@ -954,7 +1049,7 @@ function SubscriptionDNA_admin_menu ( )
 /**
  *  Auto creates dna related member pages
  *
- */ 
+ */
 function SubscriptionDNA_CreatePage($page)
 {
     global $wpdb;
@@ -1005,7 +1100,7 @@ function SubscriptionDNA_CreatePage($page)
 /**
  *  Displays form to edit DNA settings like API Key, TLD and page SSL settings
  *
- */ 
+ */
 function SubscriptionDNA_Options_Edit ( )
 {
 	if ( !empty ( $_POST['action'] ) AND 'update' == $_POST['action'] )
@@ -1017,28 +1112,28 @@ function SubscriptionDNA_Options_Edit ( )
 <div class="wrap">
 	<div id="icon-edit" class="icon32"><br /></div>
 	<h2><?php echo __ ('SubscriptionDNA' ) ; ?></h2>
-	
+
 	<br>
-	<div style="font-size:12px" align="center"> 
+	<div style="font-size:12px" align="center">
 		<a href="http://www.SubscriptionDNA.com" target="_blank"><img width="200" src="http://www.subscriptiondna.com/wp-content/uploads/2014/10/SubscriptionDNA-512.png" border="0"></a><br>
 		<br>
-		<a href="options-general.php?page=subscriptiondna/dna.php">View/Edit Settings</a>&nbsp;|   
-		<a href="options-general.php?page=subscriptiondna/dna.php&view_short=1">Short Codes</a>&nbsp;|   
-		<a href="options-general.php?page=subscriptiondna/dna.php&manage_cats=1">Category/Post Access Settings</a>&nbsp;|   
-		<a href="http://www.subscriptiondna.com/wordpress/" target="_blank">Plugin Information</a>&nbsp;| 
+		<a href="options-general.php?page=subscriptiondna/dna.php">View/Edit Settings</a>&nbsp;|
+		<a href="options-general.php?page=subscriptiondna/dna.php&view_short=1">Short Codes</a>&nbsp;|
+		<a href="options-general.php?page=subscriptiondna/dna.php&manage_cats=1">Category/Post Access Settings</a>&nbsp;|
+		<a href="http://www.subscriptiondna.com/wordpress/" target="_blank">Plugin Information</a>&nbsp;|
 		<a href="http://www.subscriptiondna.com/contact/" target="_blank">Contact Us</a>
 	</div>
 	<br>
 	<br>
 	<?php
-        
+
 	if($_REQUEST["manage_cats"]=="1")
 	{
 		include dirname(__FILE__).'/categories.php';
 	}
 	else if($_REQUEST["view_short"]=="1")
 	{
-		
+
             ?>
             <fieldset class="options">
                 <legend></legend>
@@ -1071,7 +1166,7 @@ function SubscriptionDNA_Options_Edit ( )
 	}
 	else
 	{
-	?>	   
+	?>
 		<form action="options-general.php?page=<?php echo $_GET['page'] ; ?>" method="post">
 		<fieldset class="options">
 		<legend></legend>
@@ -1079,58 +1174,64 @@ function SubscriptionDNA_Options_Edit ( )
 		<div id="tagsdiv-post_tag" class="postbox">
 		<h3 class='hndle'><span>Subscription DNA Basic Plugin Settings</span></h3>
 
-<div style="padding: 25px;">
-<p>
-<input type="checkbox" name="SubscriptionDNA_Settings[offline]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['offline']=="1") echo("checked") ; ?>  /><b>Work Offline:</b> 
-<br />
-(if checked login and subscription API will return true without communicating to SubscriptionDNA)
-</p><br>
-<b>DNA Account TLD:</b><br />
-<input type="text" name="SubscriptionDNA_Settings[TLD]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['TLD']) ; ?>" style="width:300px;" /><br />
-(ex: If your account URL is https://demo.xsubscribe.com, then "demo" is your TLD)
+                <div style="padding: 25px;">
+                <p>
+                <input type="checkbox" name="SubscriptionDNA_Settings[offline]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['offline']=="1") echo("checked") ; ?>  /><b>Work Offline:</b>
+                <br />
+                (if checked login and subscription API will return true without communicating to SubscriptionDNA)
+                </p>
+                <p>
+                <input type="checkbox" name="SubscriptionDNA_Settings[hidelinks]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['hidelinks']=="1") echo("checked") ; ?>  /><b>Hide Top Member Links:</b>
+                <br />
+                (if checked Login and MyAccount Links will not show on top right corner)
+                </p><br>
 
-<p>
-<b>API KEY:</b><br />
-<input  type="text" name="SubscriptionDNA_Settings[API_KEY]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['API_KEY']) ; ?>" style="width:300px;" /><br />
-(ex: API KEY is found on Configurations page in DNA portal )
+                <b>DNA Account TLD:</b><br />
+                <input type="text" name="SubscriptionDNA_Settings[TLD]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['TLD']) ; ?>" style="width:300px;" /><br />
+                (ex: If your account URL is https://demo.xsubscribe.com, then "demo" is your TLD)
 
-<!--
-		<?php
-                if(!is_array($GLOBALS['SubscriptionDNA']['Settings']['HTTPS']))
-                    $GLOBALS['SubscriptionDNA']['Settings']['HTTPS']=array();
-		foreach ($GLOBALS['SubscriptionDNA']['DPages'] as $page)
-		{
-		?>                
-		<tr>
-		<th scope="row"><div align="right"><?php echo($page["title"]);?> Page:</div></th>
-		<td class="dna-small">
-		&nbsp; &nbsp; &nbsp; <input type="checkbox" name="SubscriptionDNA_Settings[HTTPS][]" value="<?php echo($page["name"]); ?>" <?php if(in_array($page["name"],$GLOBALS['SubscriptionDNA']['Settings']['HTTPS']))echo("checked"); ?>> Use SSL? 
-		</td>
-		</tr>
-		<?php
-		}
-		?>
+                <p>
+                <b>API KEY:</b><br />
+                <input  type="text" name="SubscriptionDNA_Settings[API_KEY]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['API_KEY']) ; ?>" style="width:300px;" /><br />
+                (ex: API KEY is found on Configurations page in DNA portal )
+
+                <!--
+                                <?php
+                                if(!is_array($GLOBALS['SubscriptionDNA']['Settings']['HTTPS']))
+                                    $GLOBALS['SubscriptionDNA']['Settings']['HTTPS']=array();
+                                foreach ($GLOBALS['SubscriptionDNA']['DPages'] as $page)
+                                {
+                                ?>
+                                <tr>
+                                <th scope="row"><div align="right"><?php echo($page["title"]);?> Page:</div></th>
+                                <td class="dna-small">
+                                &nbsp; &nbsp; &nbsp; <input type="checkbox" name="SubscriptionDNA_Settings[HTTPS][]" value="<?php echo($page["name"]); ?>" <?php if(in_array($page["name"],$GLOBALS['SubscriptionDNA']['Settings']['HTTPS']))echo("checked"); ?>> Use SSL?
+                                </td>
+                                </tr>
+                                <?php
+                                }
+                                ?>
 
 
-		<tr>
-		<th scope="row"><div align="right">SSL URL:</div></th>
-		<td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[SSL]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['SSL']) ; ?>" style="width:300px;" />
-		</tr>
--->
+                                <tr>
+                                <th scope="row"><div align="right">SSL URL:</div></th>
+                                <td class="dna-small"><input type="text" name="SubscriptionDNA_Settings[SSL]" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['SSL']) ; ?>" style="width:300px;" />
+                                </tr>
+                -->
 
-<p>
-<hr />
+                <p>
+                <hr />
 
-<p>
-<input type="checkbox" name="SubscriptionDNA_Settings[Extra]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")echo("checked") ; ?> /> <b>Display Custom Fields?</b><br>
-(Includes Custom Fields on Registration Signup and My Profile)
+                <p>
+                <input type="checkbox" name="SubscriptionDNA_Settings[Extra]" value="1" <?php if($GLOBALS['SubscriptionDNA']['Settings']['Extra']=="1")echo("checked") ; ?> /> <b>Display Custom Fields?</b><br>
+                (Includes Custom Fields on Registration Signup and My Profile)
 
-<p>
-<b>Member Home Redirect:</b><br />
-<input type="text" name="SubscriptionDNA_Settings[mem_url]"   style="width:300px;" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['mem_url']) ; ?>"  /><br />
-(Optionally redirect active subscription logins to this URL)
+                <p>
+                <b>Member Home Redirect:</b><br />
+                <input type="text" name="SubscriptionDNA_Settings[mem_url]"   style="width:300px;" value="<?php echo($GLOBALS['SubscriptionDNA']['Settings']['mem_url']) ; ?>"  /><br />
+                (Optionally redirect active subscription logins to this URL)
 
-</div>
+                </div>
 
 		<h3 class='hndle'><span>Display Limits on Secure Posts</span></h3>
 
@@ -1150,7 +1251,7 @@ function SubscriptionDNA_Options_Edit ( )
 </div>
 
 		</div>
-		</div>                
+		</div>
 		</fieldset>
 
 		<p class="submit">
@@ -1162,7 +1263,7 @@ function SubscriptionDNA_Options_Edit ( )
 		</form>
 	<?php
 	}
-	?>	
+	?>
 </div>
 <?php
 
@@ -1173,7 +1274,7 @@ return TRUE ;
 /**
  *  Saves DNA settings like API Key, TLD and page SSL settings
  *
- */ 
+ */
 function SubscriptionDNA_Options_Save ( )
 {
 
@@ -1181,7 +1282,7 @@ function SubscriptionDNA_Options_Save ( )
 	update_option ( 'SubscriptionDNA_Settings', $_POST['SubscriptionDNA_Settings']) ;
 
 	$GLOBALS['SubscriptionDNA']['Settings'] = SubscriptionDNA_Get_Settings () ;
-        
+
 
 ?>
 
@@ -1219,7 +1320,7 @@ if ( function_exists ( 'add_action' ) )
 	$Aarzi = add_action ( 'admin_menu' , 'SubscriptionDNA_admin_menu' ) ;
 	$Aarzi = add_action ( 'wp_head' , 'SubscriptionDNA_wp_head' ) ;
 	$Aarzi = add_action(  'wp_footer', 'SubscriptionDNA_wp_footer');
-	
+
         add_action ( 'the_excerpt' , 'SubscriptionDNA_Get_Page_Content' , 10 ) ;
 	add_action ( 'the_content' , 'SubscriptionDNA_Get_Page_Content' , 10 ) ;
 

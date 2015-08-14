@@ -1,0 +1,3 @@
+<?php
+SubscriptionDNA_LoginValidate();
+?>

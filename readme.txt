@@ -4,7 +4,7 @@ Website: http://www.SubscriptionDNA.com/
 Plugin URL: http://www.SubscriptionDNA.com/wordpress/
 Tags: cloud billing, subscription, subscription billing, recurring billing, membership, member, paywall, saas, invoice, enroll, registration, subscribe, ordering, signup, protect, member, membership, billing, payments, authentication, pay per view, premium content, credit card, gateway, training, elearning
 Requires at least: 2.8
-Tested up to: 4.1
+Tested up to: 4.3
 Stable tag: trunk
 
 == Description ==
